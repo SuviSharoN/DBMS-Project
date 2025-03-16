@@ -1,8 +1,10 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import Contact from './Pages/Contact/Contact'
 function App(){
- return(
-  <div>
-     <h1 className="bg-amber-700">Hello suvi</h1>
-  </div>
+ return(           
+      <Routes>
+           <Route path = '/contact' element={<Contact/>}></Route>
+       </Routes>
  )
 
 }
