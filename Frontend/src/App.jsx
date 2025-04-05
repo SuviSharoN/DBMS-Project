@@ -10,7 +10,7 @@ import Registerpage from "./Loginpage/registerpage";
 function App() {
   return (
     <>
-        <Registerpage/>
+        <Dashboard/>
     </>
   );
 }
