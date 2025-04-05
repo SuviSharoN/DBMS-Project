@@ -10,7 +10,10 @@ const Student = sequelize.define(
         },
         name:{
             type: DataTypes.STRING,
-            allowNull : false
+            allowNull : false,
+            set(value) {
+                this.setDataValue('name', value.trim());
+              }
         },
         email : {
             type: DataTypes.STRING,
