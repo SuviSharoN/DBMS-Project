@@ -22,6 +22,10 @@ function Login() {
     navigate("/dashboard");
   };
 
+  const handleRegister = () => {
+    navigate("/registeroptions");
+  };
+
   return (
     <div className="flex justify-center items-center h-screen bg-gradient-to-r from-blue-500 to-cyan-400">
       <form 
@@ -67,6 +71,14 @@ function Login() {
           className="bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 rounded-lg w-full text-xl font-semibold transition-transform duration-300 hover:scale-105"
         >
           Login
+        </button>
+        <br /><br />
+        <button 
+          type="button" 
+          className="bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 rounded-lg w-full text-xl font-semibold transition-transform duration-300 hover:scale-105"
+          onClick={handleRegister}
+        >
+          Register
         </button>
       </form>
     </div>

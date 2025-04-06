@@ -1,19 +1,24 @@
-import { Routes, Route } from "react-router-dom";
-import Contact from "./Pages/Contact/Contact";
-import Login from "./Loginpage/Login";
-import Dashboard from "./Components/Dashboard";
-import Feepayment from "./Pages/Fee/Feepayment";
-import Circular from "./Pages/Circular/Circular";
-import Attendance from "./Pages/Attendance/Attendance";
-import Registerpage from "./Loginpage/registerpage";
+// src/App.js (or your main routing file)
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Login from './Loginpage/Login'; // Adjust path
+import RegisterOptions from './Loginpage/RegisterOptions'; // Adjust path
+import StudentRegister from './Loginpage/StudentRegisterpage'
+import FacultyRegister from './Loginpage/Facultyregister';
+import AdminRegister from './Loginpage/AdminRegister';
 
 function App() {
   return (
-    <>
-        <Registerpage/>
-    </>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/registeroptions" element={<RegisterOptions />} />
+        <Route path="/student-register" element={<StudentRegister />} />
+        <Route path="/faculty-register" element={<FacultyRegister />} />
+        <Route path="/admin-register" element={<AdminRegister />} />
+
+      </Routes>
   );
 }
 
 export default App;
-
