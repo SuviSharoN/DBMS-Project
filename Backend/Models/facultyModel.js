@@ -28,6 +28,11 @@ const Faculty = sequelize.define(
             set(value) {
                 this.setDataValue('department', value.trim());
             }
+        },
+        password: 
+        {
+            type:DataTypes.STRING,
+            allowNull : false
         }
     },
     {

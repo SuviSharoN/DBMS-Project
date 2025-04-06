@@ -37,6 +37,7 @@ function RegisterPage() {
         reservation: formData.reservation === "Yes",
       };
       const res = await axios.post("http://localhost:5000/api/students", modifiedFormData);
+      
       console.log("Student added:", res.data);
       alert("Registration successful!");
       const stud_id = modifiedFormData.id;
