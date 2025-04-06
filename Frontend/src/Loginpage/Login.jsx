@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
-  const [regNo, setRegNo] = useState("");
+  const [id, setId] = useState(""); // Changed regNo to id
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -12,13 +12,13 @@ function Login() {
   const handleLogin = (e) => {
     e.preventDefault();
 
-    if (!regNo || !password) {
+    if (!id || !password) { // Changed regNo to id
       setError("Both fields are required!");
       return;
     }
 
-    setError(""); 
-    alert(`Login successful! Welcome, ${regNo}`);
+    
+    alert(`Login successful! Welcome, ${id}`); // Changed regNo to id
     navigate("/dashboard");
   };
 
@@ -36,8 +36,8 @@ function Login() {
           <input
             type="text"
             placeholder="Enter your Reg No"
-            value={regNo}
-            onChange={(e) => setRegNo(e.target.value)}
+            value={id} // Changed regNo to id
+            onChange={(e) => setId(e.target.value)} // Changed regNo to id
             className="p-3 bg-white/40 text-black rounded-lg outline-none text-lg"
           />
         </div>

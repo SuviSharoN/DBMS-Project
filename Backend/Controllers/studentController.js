@@ -1,4 +1,4 @@
-    import Student from '../Models/studentModel.js'
+    import Student from '../Models/studentModel.js';
     import Contact from '../Models/contactModel.js';
     import Academics from '../Models/academicsModel.js';
 
@@ -10,7 +10,7 @@
             const newStudent = await Student.create({id ,name , email , dob , gender , category});
             const newContact = await Contact.create({student_id:id ,  phone , address , guardian_name , guardian_phone});
             res.status(200).json({success : true , data :{ newStudent , newContact}});
-        } catch (error) {
+        } catch (error) {       
             console.log("Error in creating student" , error);
             res.status(500).json({success : false , message : "Server Error"});
         }

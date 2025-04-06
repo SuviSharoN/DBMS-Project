@@ -10,9 +10,14 @@ import RegisterPage from "./Loginpage/Registerpage";
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<RegisterPage />} />
+      <Route path="/" element={<RegisterPage/>} />
       <Route path="/dashboard/:id" element={<Dashboard />} />
+        <Route path="/login" element={<Login />} />
     </Routes>
+
+      // <>
+      //   <RegisterPage/>
+      // </>
   );
 }
 

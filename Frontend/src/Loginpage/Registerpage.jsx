@@ -19,6 +19,7 @@ function RegisterPage() {
     joiningDate: "",
     reservation: "",
     reservationType: "",
+    password: "", // Add password to formData
   });
 
   const navigate = useNavigate(); // Initialize useNavigate
@@ -47,6 +48,13 @@ function RegisterPage() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-cyan-400">
+      <div className="absolute top-6 right-6">
+        <button onClick={() => navigate('/login')} className="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-100 transition">
+          Login
+        </button>
+      </div>
+
+    
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-lg">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Student Registration</h2>
 
@@ -244,6 +252,20 @@ function RegisterPage() {
               </select>
             </div>
           )}
+
+          {/* Password */}
+          <div>
+            <label className="block text-gray-700 font-medium">Password</label>
+            <input
+              type="password" 
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full px-4 py-2 mt-1 border rounded-md focus:ring focus:ring-blue-300 outline-none"
+              placeholder="Enter your password for login"
+              required
+            />
+          </div>
 
           {/* Submit */}
           <button

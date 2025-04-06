@@ -4,7 +4,7 @@ import courseRoutes from './Routes/courseRoutes.js';
 import facultyRoutes from './Routes/facultyRoutes.js';
 import facultyCoursesRoutes from './Routes/facultyCoursesRoutes.js'
 import enrollmentRoutes from './Routes/enrollmentRoutes.js'
-import sequelize from './Configuration/dbConnect.js'
+import sequelize from './Config/dbConnect.js'
 import  dotenv from "dotenv";
 import cors from 'cors';
 dotenv.config();
