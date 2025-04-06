@@ -1,32 +1,61 @@
     import Student from '../Models/studentModel.js';
     import Contact from '../Models/contactModel.js';
     import Academics from '../Models/academicsModel.js';
+    import Credential from '../Models/credentialModel.js';
+    import bcrypt from 'bcryptjs';
+//bycrypting password
+const createCredential = async (id, password) => {
+    try {
+      if (!id || !password) {
+        throw new Error("ID and password are required");
+      }
+  
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newCredential = await Credential.create({
+        student_id: id,
+        password: hashedPassword,
+      });
+  
+      return newCredential;
+    } catch (error) {
+      console.error("Error creating credential:", error.message);
+      throw error; // rethrow so caller can handle it too
+    }
+  };
+  
+
+
 
     export const addStudent = async (req , res) =>{   
         try {
-            const {id , name , email , dob , gender , category , reservation , phone , address , guardian_name , guardian_phone} = req.body;
-            if(!id || !name || !email || !dob || !gender || !category || !phone || !address)
+            const {id , name , email , dob , gender , category , reservation , phone , address , guardian_name , guardian_phone,password} = req.body;
+            if(!id || !name || !email || !dob || !gender || !category || !phone || !address || !password)
                 return res.status(400).json({success : false , message : console.log(req.body)});
             const newStudent = await Student.create({id ,name , email , dob , gender , category});
             const newContact = await Contact.create({student_id:id ,  phone , address , guardian_name , guardian_phone});
-            res.status(200).json({success : true , data :{ newStudent , newContact}});
-        } catch (error) {       
-            console.log("Error in creating student" , error);
-            res.status(500).json({success : false , message : "Server Error"});
+            const newCredential = await createCredential(id, password);
+
+            res.status(200).json({
+                success: true,
+                data: { newStudent, newContact, newCredential },
+        });
+        } catch (error) {
+            console.log("Error in creating student", error);
+            res.status(500).json({ success: false, message: "Server Error" });
         }
     };
-    export const addCredential = async (req, res) =>{
-        try {
-            const {student_id , password} = req.body;
-            if(!student_id || !password) return res.status(404).json({success : false , message : 'Please provide all fields'});
-            const hashedPassword = await bcrypt.hash(password , 10);
-            const newCredential = await Credential.create({student_id , password : hashedPassword});
-            res.status(200).json({success : true , data : newCredential});
-        } catch (error) {
-            console.log('Error in adding credential' , error);
-            res.status(500).json({success : false , message : 'Server Error'});
-        }
-    }
+    // export const addCredential = async (req, res) =>{
+    //     try {
+    //         const {id , password} = req.body;
+    //         if(!id || !password) return res.status(404).json({success : false , message : 'Please provide all fields'});
+    //         const hashedPassword = await bcrypt.hash(password , 10);
+    //         const newCredential = await Credential.create({student_id:id , password : hashedPassword});
+    //         res.status(200).json({success : true , data : newCredential});
+    //     } catch (error) {
+    //         console.log('Error in adding credential' , error);
+    //         res.status(500).json({success : false , message : 'Server Error'});
+    //     }
+    // }
     
     export const getCredential = async (req, res) =>{
         try {
