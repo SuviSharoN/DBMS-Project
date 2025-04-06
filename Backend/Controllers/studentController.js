@@ -37,7 +37,7 @@
         } catch (error) {
             console.log('Error in fetching credentials');
             res.status(500).json({success : false , message : 'Server Error'});
-        }
+      }
     }
     
     export const getAcademics =  async (req , res) =>{

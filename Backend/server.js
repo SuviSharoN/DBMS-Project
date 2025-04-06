@@ -4,7 +4,7 @@ import courseRoutes from './Routes/courseRoutes.js';
 import facultyRoutes from './Routes/facultyRoutes.js';
 import facultyCoursesRoutes from './Routes/facultyCoursesRoutes.js'
 import enrollmentRoutes from './Routes/enrollmentRoutes.js'
-import sequelize from './Config/dbConnect.js'
+import adminRoutes from './Routes/adminRoutes.js';
 import  dotenv from "dotenv";
 import cors from 'cors';
 dotenv.config();
@@ -24,6 +24,7 @@ app.use('/api/courses' , courseRoutes);
 app.use('/api/faculty' , facultyRoutes)
 app.use('/api/facultycourses' , facultyCoursesRoutes);
 app.use('/api/enrollments' , enrollmentRoutes );
+app.use('/api/admin' , adminRoutes);
 
 app.listen(5000,()=>{
     associateModels();
