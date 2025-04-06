@@ -7,5 +7,4 @@ router.post('/' , addStudent );
 router.get('/dashboard/:id',getDashboard)
 router.post('/academics' , addAcademics);
 router.get('/academics/:id' , getAcademics);
-router.get('/credentials/:id' , getCredential);
 export default router;

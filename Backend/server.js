@@ -6,6 +6,7 @@ import facultyCoursesRoutes from './Routes/facultyCoursesRoutes.js'
 import enrollmentRoutes from './Routes/enrollmentRoutes.js'
 import sequelize from './Config/dbConnect.js'
 import  dotenv from "dotenv";
+import authenRoutes from './Routes/authenticationRoutes.js'
 import cors from 'cors';
 dotenv.config();
 import associateModels from './Models/associateModel.js';
@@ -19,6 +20,7 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json());
+app.use('/api',authenRoutes);
 app.use('/api/students' , studentRoutes);
 app.use('/api/courses' , courseRoutes);
 app.use('/api/faculty' , facultyRoutes)
