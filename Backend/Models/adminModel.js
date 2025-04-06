@@ -27,7 +27,7 @@ const syncAdminTable = async() =>{
         console.log('Admin Table created successfully');
 
     } catch (error) {
-        console.log('Error in creating Admin table');
+        console.log('Error in creating Admin tables');
     }
 }
 syncAdminTable();
