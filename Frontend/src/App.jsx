@@ -6,13 +6,23 @@ import Feepayment from "./Pages/Fee/Feepayment";
 import Circular from "./Pages/Circular/Circular";
 import Attendance from "./Pages/Attendance/Attendance";
 import RegisterPage from "./Loginpage/Registerpage";
-
+import RegisterOptions from "./Loginpage/RegisterOptions";
+import FacultyRegister from "./Loginpage/Facultyregister";
+import AdminRegister from "./Loginpage/AdminRegister";
 function App() {
   return (
     <Routes>
       <Route path="/" element={<RegisterPage/>} />
       <Route path="/dashboard/:id" element={<Dashboard />} />
-        <Route path="/login" element={<Login />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/registeroptions" element={<RegisterOptions />} />
+
+        <Route path="/faculty-register" element={<FacultyRegister />} />
+        <Route path="/admin-register" element={<AdminRegister />} />
+        <Route path="/dashboard/attendance" element={<Attendance />} />
+        <Route path="/dashboard/contact" element={<Contact />} />
+        <Route path="/dashboard/circular" element={<Circular />} />
+        <Route path="/dashboard/fee" element={<Feepayment />} />
     </Routes>
 
       // <>
