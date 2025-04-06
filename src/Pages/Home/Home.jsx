@@ -1,6 +1,6 @@
 import { Route,Routes } from "react-router-dom";
 import Contact  from "../Contact/Contact";
-import Fee from "../Fee/Fee";
+import Fee from "../Fee/FeePayment";
 import Circular from '../Circular/Circular';
 import Attendance from '../Attendance/Attendance';
 import Timetable from '../Timetable/Timetable';

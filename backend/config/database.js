@@ -1,22 +1,18 @@
-import express from "express";
-import 'dotenv/config';
-
-import mysql from "mysql2";
-import { Sequelize } from "sequelize"; // Corrected typo
+import { Sequelize } from "sequelize";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 
-dotenv.config(); // Load environment variables
+// Fix for ES Module issues
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const sequelize = new Sequelize(
-  "student_administration", "root", "SharoN079", {
-  host: "localhost",
-  dialect: "mysql",}
-);
+// Load environment variables
+dotenv.config({ path: path.resolve(__dirname, "../../database.env") });
 
-// Test database connection
-sequelize.authenticate()
-  .then(() => console.log("Database connected successfully"))
-  .catch(err => console.error("Error connecting to database:", err));
+const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASS, {
+  host: process.env.DB_HOST,
+  dialect: "mysql",
+});
 
-
-export default sequelize
+export default sequelize;

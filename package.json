@@ -11,13 +11,16 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.14",
+    "axios": "^1.8.4",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "mysql2": "^3.14.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.3.0",
-    "sequelize": "^6.37.6",
+    "sequelize": "^6.37.7",
+    "sequelize-cli": "^6.6.2",
     "tailwindcss": "^4.0.14"
   },
   "devDependencies": {
