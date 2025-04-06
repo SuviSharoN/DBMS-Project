@@ -1,24 +1,27 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import axios from "axios";
 
 function RegisterPage() {
   const [formData, setFormData] = useState({
     name: "",
-    reg_No: "",
+    id: "",
     email: "",
     dob: "",
     gender: "",
     category: "",
-    mobile: "",
+    phone: "",
     address: "",
-    guardianPhone: "",
-    guardianName: "",
+    guardian_phone: "",
+    guardian_name: "",
     department: "",
     year: "",
     joiningDate: "",
     reservation: "",
     reservationType: "",
   });
+
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -29,12 +32,14 @@ function RegisterPage() {
     try {
       const modifiedFormData = {
         ...formData,
-        regNo: parseInt(formData.regNo),
+        id: parseInt(formData.id),
         reservation: formData.reservation === "Yes",
       };
-      const res = await axios.post("http://localhost:3000/students/add", modifiedFormData);
+      const res = await axios.post("http://localhost:5000/api/students", modifiedFormData);
       console.log("Student added:", res.data);
       alert("Registration successful!");
+      const stud_id = modifiedFormData.id;
+      navigate(`/dashboard/${stud_id}`); // Navigate to the dashboard after success
     } catch (err) {
       console.error("Error:", err.response?.data || err.message);
     }
@@ -65,8 +70,8 @@ function RegisterPage() {
             <label className="block text-gray-700 font-medium">Registration Number</label>
             <input
               type="text"
-              name="regNo"
-              value={formData.regNo}
+              name="id"
+              value={formData.id}
               onChange={handleChange}
               className="w-full px-4 py-2 mt-1 border rounded-md focus:ring focus:ring-blue-300 outline-none"
               placeholder="Enter your Reg No"
@@ -79,8 +84,8 @@ function RegisterPage() {
             <label className="block text-gray-700 font-medium">Mobile Number</label>
             <input
               type="tel"
-              name="mobile"
-              value={formData.mobile}
+              name="phone"
+              value={formData.phone}
               onChange={handleChange}
               pattern="[0-9]{10}"
               className="w-full px-4 py-2 mt-1 border rounded-md focus:ring focus:ring-blue-300 outline-none"
@@ -94,8 +99,8 @@ function RegisterPage() {
             <label className="block text-gray-700 font-medium">Guardian/Parent Name</label>
             <input
               type="text"
-              name="guardianName"
-              value={formData.guardianName}
+              name="guardian_name"
+              value={formData.guardian_name}
               onChange={handleChange}
               className="w-full px-4 py-2 mt-1 border rounded-md focus:ring focus:ring-blue-300 outline-none"
               placeholder="Enter guardian/parent name"
@@ -108,8 +113,8 @@ function RegisterPage() {
             <label className="block text-gray-700 font-medium">Guardian's Phone Number</label>
             <input
               type="tel"
-              name="guardianPhone"
-              value={formData.guardianPhone}
+              name="guardian_phone"
+              value={formData.guardian_phone}
               onChange={handleChange}
               pattern="[0-9]{10}"
               className="w-full px-4 py-2 mt-1 border rounded-md focus:ring focus:ring-blue-300 outline-none"

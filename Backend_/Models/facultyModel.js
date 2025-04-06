@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import { sequelize } from "../Configuration/asd.js";
+import  sequelize  from "../Configuration/dbConnect.js";
 const Faculty = sequelize.define(
     "Faculty",
     {

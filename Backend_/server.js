@@ -4,7 +4,7 @@ import courseRoutes from './Routes/courseRoutes.js';
 import facultyRoutes from './Routes/facultyRoutes.js';
 import facultyCoursesRoutes from './Routes/facultyCoursesRoutes.js'
 import enrollmentRoutes from './Routes/enrollmentRoutes.js'
-import {dbConnect} from './Configuration/asd.js'
+import sequelize from './Configuration/dbConnect.js'
 import  dotenv from "dotenv";
 import cors from 'cors';
 dotenv.config();
@@ -26,7 +26,6 @@ app.use('/api/facultycourses' , facultyCoursesRoutes);
 app.use('/api/enrollments' , enrollmentRoutes );
 
 app.listen(5000,()=>{
-    dbConnect();
     associateModels();
     console.log(`Server is running on port 5000`);
 })

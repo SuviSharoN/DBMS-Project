@@ -1,9 +1,9 @@
 import { DataTypes } from "sequelize";
-import sequelize  from '../Configuration/dbConnect';
+import sequelize  from '../Configuration/dbConnect.js';
 const Student = sequelize.define(
     "Student",
     {
-        reg_No :{
+        id :{
             type : DataTypes.INTEGER,
             primaryKey : true,
             autoIncreament : true
