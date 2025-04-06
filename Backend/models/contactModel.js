@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
-import  sequelize  from "../Config/dbConnect.js";
-import Student from "./student.js";
+import { sequelize } from "../Config/dbConnect.js";
+import Student from "./studentModel.js";
 
 const Contact = sequelize.define(
     "Contact",{
@@ -9,12 +9,12 @@ const Contact = sequelize.define(
             primaryKey : true ,
             autoIncrement : true
         },
-        reg_No : {
+        student_id : {
             type : DataTypes.INTEGER,
             allowNull : false , 
             references : {
                 model : Student,
-                key : 'reg_No'
+                key : 'id'
             }
         },
         phone : {
@@ -38,6 +38,9 @@ const Contact = sequelize.define(
         timestamps : true
     }
 );
+
+Student.hasOne(Contact , {foreignKey : 'student_id'});
+Contact.belongsTo(Student , {foreignKey : 'student_id'});
 
 const syncContactTable = async ()=>{
     try {
