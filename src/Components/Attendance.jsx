@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom'; // 1. Import useNavigate
 
 function Attendance() {
+  const navigate = useNavigate(); // 2. Instantiate useNavigate
   const annaunivlogo = "/annaunivlogo.jpg";
   const name = "SaravanaKumar B";
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -31,33 +33,55 @@ function Attendance() {
     ],
   };
 
+  // --- Handle Logout with Confirmation ---
+  // 3. Create handleLogout function
+  const handleLogout = () => {
+    const isConfirmed = window.confirm("Are you sure you want to sign out?");
+    if (isConfirmed) {
+      // TODO: Add actual sign-out logic here (e.g., clear tokens, reset state)
+      console.log("Signing out confirmed...");
+      setLogoutSidebarOpen(false); // Close the dropdown
+      navigate('/login'); // Navigate to the login page ONLY if confirmed
+    } else {
+      console.log("Sign out cancelled.");
+    }
+  };
+
+  // --- Your existing JSX structure and CSS ---
   return (
     <>
       <div className="flex justify-between items-center p-4 bg-gradient-to-r from-[#07899d] to-[#22d3ee] shadow-lg rounded-md">
         <div className="flex items-center gap-4">
           <img src={annaunivlogo} alt="Anna Univ Logo" className="w-12 h-12 rounded-full" />
           <h1 className="text-white text-lg font-bold">Attendance</h1>
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-white text-2xl">&#9776;</button>
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-white text-2xl">☰</button>
         </div>
         <div className="relative">
           <div className="flex items-center gap-3">
             <img src={annaunivlogo} alt="Profile" className="w-10 h-10 rounded-full" />
             <div>
               <h4 className="text-white text-sm font-medium">{name}</h4>
-              <button onClick={() => setLogoutSidebarOpen(!logoutSidebarOpen)} className="bg-white text-black px-3 py-1 text-sm rounded-md">&#9660;</button>
+              <button onClick={() => setLogoutSidebarOpen(!logoutSidebarOpen)} className="bg-white text-black px-3 py-1 text-sm rounded-md">▼</button>
             </div>
           </div>
           {logoutSidebarOpen && (
             <div className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-lg p-2">
-              <button onClick={() => setLogoutSidebarOpen(false)} className="block w-full text-left px-4 py-2 hover:bg-gray-200">Log Out</button>
+              {/* 4. Update the onClick handler for the Log Out button */}
+              <button
+                onClick={handleLogout} // Use the new handler
+                className="block w-full text-left px-4 py-2 hover:bg-gray-200"
+              >
+                Log Out
+              </button>
             </div>
           )}
         </div>
       </div>
 
       <div className={`fixed top-0 left-0 w-64 h-full bg-gradient-to-r from-teal-700 to-cyan-400 text-white p-5 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} transition-transform duration-300`}>
-        <button onClick={() => setSidebarOpen(false)} className="text-xl">&times;</button>
+        <button onClick={() => setSidebarOpen(false)} className="text-xl">×</button>
         <div className="mt-5 flex flex-col gap-3">
+          {/* NOTE: Sidebar buttons still lack navigation functionality as requested */}
           {["Dashboard", "Circular", "Attendance", "Contact", "Time Table", "Course Enroll"].map((item) => (
             <button key={item} className="bg-white text-blue-800 p-2 rounded-md hover:bg-blue-200">{item}</button>
           ))}
@@ -89,7 +113,7 @@ function Attendance() {
               {attendanceData[selectedSem].map((record, index) => (
                 <tr key={index} className="text-center border">
                   <td className="p-2 border">{record.course}</td>
-                  <td className={`p-2 border font-bold ${parseInt(record.attendance) > 75 ?  "text-green-600" :" text-red-600" }`}>{record.attendance}</td>
+                  <td className={`p-2 border font-bold ${parseInt(record.attendance) >= 75 ?  "text-green-600" :" text-red-600" }`}>{record.attendance}</td> {/* Corrected condition >= 75 */}
                 </tr>
               ))}
             </tbody>
