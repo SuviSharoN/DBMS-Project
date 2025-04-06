@@ -15,7 +15,31 @@
             res.status(500).json({success : false , message : "Server Error"});
         }
     };
-
+    export const addCredential = async (req, res) =>{
+        try {
+            const {student_id , password} = req.body;
+            if(!student_id || !password) return res.status(404).json({success : false , message : 'Please provide all fields'});
+            const hashedPassword = await bcrypt.hash(password , 10);
+            const newCredential = await Credential.create({student_id , password : hashedPassword});
+            res.status(200).json({success : true , data : newCredential});
+        } catch (error) {
+            console.log('Error in adding credential' , error);
+            res.status(500).json({success : false , message : 'Server Error'});
+        }
+    }
+    
+    export const getCredential = async (req, res) =>{
+        try {
+            const {id} = req.params;
+            const record = await Credential.findAll({where : {student_id : id}});
+            if(record.length === 0) return res.status(404).json({success : false , message : 'No Student found'});
+            res.status(200).json({success : true , data : record});
+        } catch (error) {
+            console.log('Error in fetching credentials');
+            res.status(500).json({success : false , message : 'Server Error'});
+        }
+    }
+    
     export const getAcademics =  async (req , res) =>{
         try {
         const {id} = req.params
