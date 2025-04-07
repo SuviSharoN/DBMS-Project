@@ -6,15 +6,18 @@ import { useNavigate } from "react-router-dom";
 function Dashboard() {
   const { id } = useParams();
   const [student, setStudent] = useState(null);
+  const [academics,setAcademics] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const iphone = "/iphone.jpg"; // Image from the public folder
+  const iphone = "/annaunivlogo.jpg"; // Image from the public folder
   const navigate = useNavigate();
   useEffect(() => {
     const fetchStudent = async () => {
       try {
         const res = await axios.get(`http://localhost:5000/api/students/dashboard/${id}`);
-        setStudent(res.data.data);
+        console.log(res);
+        setStudent(res.data.data.student);
+        setAcademics(res.data.data.academic);
       } catch (error) {
         console.error("Error fetching student:", error);
       } finally {
@@ -31,9 +34,9 @@ function Dashboard() {
   const studentInfo = [
     { label: "Name", value: student.name },
     { label: "Reg No", value: student.id },
-    { label: "Year", value: student.academic_details?.year || "-" },
+    { label: "Year", value: academics[0].year},
     { label: "Email", value: student.email },
-    { label: "Department", value: student.academic_details?.department || "-" },
+    { label: "Department", value: academics[0].department},
   ];
 
   const dashboardOptions = [

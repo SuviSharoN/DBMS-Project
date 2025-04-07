@@ -8,7 +8,9 @@
       const [error, setError] = useState("");
 
       const navigate = useNavigate();
-
+      const handleRegister = () => {
+        navigate("/registeroptions");
+      };
       const handleLogin = async(e) => {
         e.preventDefault();
 
@@ -77,6 +79,14 @@
             >
               Login
             </button>
+            <br /><br />
+        <button 
+          type="button" 
+          className="bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 rounded-lg w-full text-xl font-semibold transition-transform duration-300 hover:scale-105"
+          onClick={handleRegister}
+        >
+          Register
+        </button>
           </form>
         </div>
       );

@@ -25,7 +25,7 @@ const Academics = sequelize.define(
             this.setDataValue('department', value.trim());
         }
      },
-     year_of_study : {
+     year : {
         type : DataTypes.ENUM('1','2','3','4'),
         allowNull : false
      },
