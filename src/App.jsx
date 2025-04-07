@@ -16,7 +16,8 @@ import Attendance from './Components/Attendance';
 import Feepayment from './Components/Feepayment';
 import Circular from './Components/Circular'; // Keep the import
 import Contact from './Components/Contact';
-// Import other components like TimeTable, CourseEnroll if needed
+import CourseEnroll from './Components/CourseEnroll';
+import TimeTable from './Components/Timetable';
 
 function App() {
   return ( 
@@ -36,7 +37,9 @@ function App() {
           <Route path="/dashboard/contact" element={<Contact />} />
           <Route path="/dashboard/circular" element={<Circular />} />
           <Route path="/dashboard/fee" element={<Feepayment />} />
-  
+          <Route path="/dashboard/course-enroll" element = {<CourseEnroll />} />
+          <Route path="/dashboard/timetable" element = {<TimeTable />} />
+
         </Route>
       </Routes>
   );

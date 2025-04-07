@@ -1,83 +1,82 @@
+// src/Components/Dashboard.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+// --- REMOVED: react-icons import ---
 
 function Dashboard() {
   const navigate = useNavigate();
   const annaunivlogo = "/annaunivlogo.jpg"; // Image from the public folder
 
-  const studentInfo = [
-    { label: "Name", value: "SaravanaKumar" },
-    { label: "Age", value: 18 },
-    { label: "Year", value: "3" },
-    { label: "Email", value: "s4tech1234@gmail.com" },
-    { label: "Department", value: "CSE" },
-  ];
-
-  const dashboardOptions = [
-    { label: "Circular", path: "/dashboard/circular" },
-    { label: "Contact", path: "/dashboard/contact" },
-    { label: "Fee", path: "/dashboard/fee" },
-    { label: "Attendance", path: "/dashboard/attendance" },
-    { label: "Time Table", path: "/dashboard/timetable" },
-    { label: "Course Enroll", path: "/dashboard/course-enroll" },
-  ];
-
-  const handleSignOut = () => {
-    const isConfirmed = window.confirm("Are you sure you want to sign out?");
-    if (isConfirmed) {
-      console.log("Signing out confirmed...");
-      navigate('/login');
-    } else {
-      console.log("Sign out cancelled.");
-    }
+  // --- Static Data (Replace with dynamic data from context/API) ---
+  const studentInfo = {
+    name: "SaravanaKumar B",
+    age: 18,
+    year: "2nd Year",
+    email: "s4tech1234@gmail.com",
+    department: "Computer Science & Engineering (CSE)",
+    rollNumber: "2023103559",
   };
 
+  // Define navigation options (without icons)
+  const dashboardOptions = [
+    { label: "Circulars", path: "/dashboard/circular" },
+    { label: "Attendance", path: "/dashboard/attendance" },
+    { label: "Fee Payments", path: "/dashboard/fee" },
+    { label: "Timetable", path: "/dashboard/timetable" },
+    { label: "Course Enrollment", path: "/dashboard/course-enroll" },
+    { label: "Contact Info", path: "/dashboard/contact" },
+  ];
+
+  // Removed handleSignOut - Handled by Layout.js
+
   return (
-    <div className="relative flex flex-col items-center py-12 min-h-screen bg-gray-100">
-      {/* Sign Out Button */}
-      <div className="absolute top-6 right-6 z-10">
-        <button
-          onClick={handleSignOut}
-          className="bg-red-500 text-white py-2 px-5 md:py-3 md:px-6 rounded-lg text-base md:text-lg font-semibold shadow-md hover:bg-red-600 hover:scale-105 transition-all duration-300"
-        >
-          Sign Out
-        </button>
-      </div>
+    // Main container for dashboard content (assumes Layout provides outer structure)
+    <div className="p-4 md:p-6 lg:p-8">
+      <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-8 text-center md:text-left">
+        Welcome, {studentInfo.name}!
+      </h2>
 
-      <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-10 text-center px-4">Student Dashboard</h2>
+      {/* Main content card using Grid for layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
 
-      {/* Main content card */}
-      <div className="flex flex-col md:flex-row bg-white shadow-xl border border-gray-200 p-4 md:p-8 rounded-xl w-full max-w-5xl mx-4">
-
-        {/* Left Section: Student Info */}
-        <div className="w-full md:w-1/2 flex flex-col items-center p-4 md:p-6 border-b md:border-b-0 md:border-r border-gray-300 mb-6 md:mb-0">
-          <div className="w-40 h-40 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-gray-300 shadow-lg mb-6 flex-shrink-0">
+        {/* Left Section: Student Profile Card (Spans 1 column on large screens) */}
+        <div className="lg:col-span-1 bg-gradient-to-br from-white to-gray-50 shadow-xl rounded-xl p-6 border border-gray-200 flex flex-col items-center">
+          {/* Profile Image */}
+          <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-cyan-200 shadow-lg mb-5 flex-shrink-0 ring-2 ring-cyan-400 ring-offset-2">
             <img src={annaunivlogo} alt="Student Profile" className="w-full h-full object-cover" />
           </div>
-          <div className="text-left w-full">
-            <h3 className="text-xl md:text-2xl font-semibold text-gray-700 mb-4 text-center md:text-left">Student Information</h3>
-            {studentInfo.map((item, index) => (
-              <p key={index} className="text-base md:text-lg text-gray-600 mb-1 break-words">
-                <span className="font-medium text-gray-800">{item.label}:</span> {item.value}
-              </p>
+          {/* Info Details */}
+          <div className="text-center w-full">
+            <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-1">{studentInfo.name}</h3>
+            <p className="text-sm text-cyan-700 font-medium mb-3">{studentInfo.department}</p>
+            <div className="text-left w-full space-y-2 text-sm md:text-base border-t pt-4 mt-4">
+              <p className="text-gray-600"><span className="font-semibold text-gray-700 w-20 inline-block">Roll No:</span> {studentInfo.rollNumber}</p>
+              <p className="text-gray-600"><span className="font-semibold text-gray-700 w-20 inline-block">Year:</span> {studentInfo.year}</p>
+              <p className="text-gray-600"><span className="font-semibold text-gray-700 w-20 inline-block">Email:</span> <span className="break-all">{studentInfo.email}</span></p>
+              <p className="text-gray-600"><span className="font-semibold text-gray-700 w-20 inline-block">Age:</span> {studentInfo.age}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Section: Navigation Options (Spans 2 columns on large screens) */}
+        <div className="lg:col-span-2 bg-white shadow-xl rounded-xl p-6 border border-gray-200">
+          <h3 className="text-xl md:text-2xl font-semibold text-gray-700 mb-6 border-b pb-3">Quick Actions</h3>
+          {/* Grid layout for buttons */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-6">
+            {dashboardOptions.map((option) => (
+              <button
+                key={option.label}
+                onClick={() => navigate(option.path)}
+                // Adjusted styling: removed flex-col, gap-2; adjusted padding
+                className="p-4 md:p-5 rounded-lg text-center bg-gradient-to-r from-cyan-50 to-blue-100 text-blue-800 font-semibold shadow-md border border-blue-200 hover:shadow-lg hover:scale-[1.03] hover:from-cyan-100 hover:to-blue-200 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-400"
+              >
+                {/* Label */}
+                <span className="text-sm md:text-base">{option.label}</span>
+              </button>
             ))}
           </div>
         </div>
 
-        {/* Right Section: Navigation Buttons */}
-        {/* Added mt-[400px] to push the entire button block down */}
-        {/* NOTE: 400px is a very large margin! */}
-        <div className="w-full md:w-1/2 flex flex-wrap justify-center items-center content-start gap-4 md:gap-6 px-4 md:px-6 pb-6 pt-6 mt-[100px]">
-          {dashboardOptions.map((option, index) => (
-            <button
-              key={index}
-              onClick={() => navigate(option.path)}
-              className="w-full sm:w-48 bg-gradient-to-r from-blue-400 to-blue-600 text-white py-3 px-4 md:px-6 rounded-lg text-base md:text-lg font-semibold shadow-md hover:scale-105 hover:from-blue-500 hover:to-blue-700 transition-all duration-300"
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
       </div>
     </div>
   );

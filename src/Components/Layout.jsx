@@ -30,6 +30,8 @@ function Layout() {
     { label: "Attendance", path: "/dashboard/attendance" }, // Use the nested path
     { label: "Fee Payment", path: "/dashboard/fee" }, // Use the nested path
     { label: "Contact", path: "/dashboard/contact" }, // Use the nested path
+    { label : "Course Enroll", path : "/dashboard/course-enroll"},
+    { label : "Time Table", path : "/dashboard/timetable"}
     // Add other items like Time Table, Course Enroll if you have routes for them
     // { label: "Time Table", path: "/dashboard/timetable" },
     // { label: "Course Enroll", path: "/dashboard/course-enroll" },
