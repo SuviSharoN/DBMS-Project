@@ -1,126 +1,89 @@
+// src/Components/Attendance.js
 import { useState } from "react";
-import { useNavigate } from 'react-router-dom'; // 1. Import useNavigate
+// Removed useNavigate as it's handled by Layout.js
+// Removed annaunivlogo and name as they are in Layout.js
 
 function Attendance() {
-  const navigate = useNavigate(); // 2. Instantiate useNavigate
-  const annaunivlogo = "/annaunivlogo.jpg";
-  const name = "SaravanaKumar B";
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [logoutSidebarOpen, setLogoutSidebarOpen] = useState(false);
-  const [selectedSem, setSelectedSem] = useState("Semester 3");
+  // Keep state specific to the Attendance page
+  const [selectedSem, setSelectedSem] = useState("Semester 3"); // Default semester
 
+  // Keep data specific to the Attendance page
   const attendanceData = {
     "Semester 3": [
-      {course: "Digital System and Design", attendance: "80%"},
-      {course: "Naan Mudhalvan", attendance: "85%"},
+      { course: "Digital System and Design", attendance: "80%" },
+      { course: "Naan Mudhalvan", attendance: "85%" },
       { course: "Probability ans Statics", attendance: "88%" },
       { course: "Data Structures", attendance: "90%" },
       { course: "Java Programming", attendance: "60%" },
     ],
     "Semester 2": [
-      { course: "Tamil - 1", attendance: "90%"},
+      { course: "Tamil - 1", attendance: "90%" },
       { course: "English - 1", attendance: "95%" },
       { course: "Chemistry", attendance: "80%" },
       { course: "Discrete Mathematics", attendance: "88%" },
       { course: "OOPS in C++", attendance: "75%" },
     ],
     "Semester 1": [
-      { course: "Tamil - 1", attendance: "90%"},
+      { course: "Tamil - 1", attendance: "90%" },
       { course: "English - 1", attendance: "95%" },
-      { course: "Matrices and Calculus", attendance: "85%"},
+      { course: "Matrices and Calculus", attendance: "85%" },
       { course: "Physics - 1", attendance: "82%" },
       { course: "Programming in C", attendance: "87%" },
     ],
+    // Add more semesters as needed
   };
 
-  // --- Handle Logout with Confirmation ---
-  // 3. Create handleLogout function
-  const handleLogout = () => {
-    const isConfirmed = window.confirm("Are you sure you want to sign out?");
-    if (isConfirmed) {
-      // TODO: Add actual sign-out logic here (e.g., clear tokens, reset state)
-      console.log("Signing out confirmed...");
-      setLogoutSidebarOpen(false); // Close the dropdown
-      navigate('/login'); // Navigate to the login page ONLY if confirmed
-    } else {
-      console.log("Sign out cancelled.");
-    }
-  };
+  // Removed handleLogout function - it's in Layout.js
 
-  // --- Your existing JSX structure and CSS ---
+  // --- JSX for Attendance Content ONLY ---
+  // No <>, Header, or Sidebar here. That's handled by Layout.js
   return (
-    <>
-      <div className="flex justify-between items-center p-4 bg-gradient-to-r from-[#07899d] to-[#22d3ee] shadow-lg rounded-md">
-        <div className="flex items-center gap-4">
-          <img src={annaunivlogo} alt="Anna Univ Logo" className="w-12 h-12 rounded-full" />
-          <h1 className="text-white text-lg font-bold">Attendance</h1>
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-white text-2xl">☰</button>
-        </div>
-        <div className="relative">
-          <div className="flex items-center gap-3">
-            <img src={annaunivlogo} alt="Profile" className="w-10 h-10 rounded-full" />
-            <div>
-              <h4 className="text-white text-sm font-medium">{name}</h4>
-              <button onClick={() => setLogoutSidebarOpen(!logoutSidebarOpen)} className="bg-white text-black px-3 py-1 text-sm rounded-md">▼</button>
-            </div>
-          </div>
-          {logoutSidebarOpen && (
-            <div className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-lg p-2">
-              {/* 4. Update the onClick handler for the Log Out button */}
-              <button
-                onClick={handleLogout} // Use the new handler
-                className="block w-full text-left px-4 py-2 hover:bg-gray-200"
-              >
-                Log Out
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className={`fixed top-0 left-0 w-64 h-full bg-gradient-to-r from-teal-700 to-cyan-400 text-white p-5 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} transition-transform duration-300`}>
-        <button onClick={() => setSidebarOpen(false)} className="text-xl">×</button>
-        <div className="mt-5 flex flex-col gap-3">
-          {/* NOTE: Sidebar buttons still lack navigation functionality as requested */}
-          {["Dashboard", "Circular", "Attendance", "Contact", "Time Table", "Course Enroll"].map((item) => (
-            <button key={item} className="bg-white text-blue-800 p-2 rounded-md hover:bg-blue-200">{item}</button>
-          ))}
-        </div>
-      </div>
-
-      <div className="container mx-auto mt-8 p-4 max-w-4xl">
-        <h3 className="text-lg font-bold text-center mb-4">Attendance Details</h3>
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <label className="block text-lg font-medium mb-2">Select Semester:</label>
+    <div className="container mx-auto p-4 max-w-4xl"> {/* Adjust padding/margin if Layout handles it */}
+      <h3 className="text-2xl font-bold text-center mb-6 text-gray-700">Attendance Details</h3>
+      <div className="bg-white p-6 rounded-lg shadow-md"> {/* Increased padding */}
+        <div className="mb-6"> {/* Added margin below select */}
+          <label htmlFor="semester-select" className="block text-lg font-medium mb-2 text-gray-700">Select Semester:</label>
           <select
+            id="semester-select" // Added id for label association
             value={selectedSem}
             onChange={(e) => setSelectedSem(e.target.value)}
-            className="mb-4 px-4 py-2 border rounded-md"
+            className="w-full md:w-1/2 lg:w-1/3 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500" // Added styling and responsiveness
           >
             {Object.keys(attendanceData).map((sem) => (
               <option key={sem} value={sem}>{sem}</option>
             ))}
           </select>
+        </div>
 
+        <div className="overflow-x-auto"> {/* Ensure table is scrollable on small screens */}
           <table className="w-full border-collapse border border-gray-300">
             <thead>
-              <tr className="bg-cyan-400 text-white">
-                <th className="p-2 border">Course</th>
-                <th className="p-2 border">Attendance</th>
+              <tr className="bg-cyan-500 text-white"> {/* Consistent header color */}
+                <th className="p-3 border text-left">Course</th> {/* Left align header */}
+                <th className="p-3 border text-center">Attendance</th> {/* Center align header */}
               </tr>
             </thead>
             <tbody>
-              {attendanceData[selectedSem].map((record, index) => (
-                <tr key={index} className="text-center border">
-                  <td className="p-2 border">{record.course}</td>
-                  <td className={`p-2 border font-bold ${parseInt(record.attendance) >= 75 ?  "text-green-600" :" text-red-600" }`}>{record.attendance}</td> {/* Corrected condition >= 75 */}
+              {attendanceData[selectedSem] && attendanceData[selectedSem].length > 0 ? (
+                 attendanceData[selectedSem].map((record, index) => (
+                  <tr key={index} className="border hover:bg-gray-100 transition-colors duration-150">
+                    <td className="p-3 border text-left">{record.course}</td>
+                    <td className={`p-3 border font-semibold text-center ${parseInt(record.attendance) >= 75 ? "text-green-600" : "text-red-600"}`}> {/* Corrected condition, added font-semibold */}
+                      {record.attendance}
+                    </td>
+                  </tr>
+                 ))
+              ) : (
+                <tr>
+                  <td colSpan="2" className="text-center p-4 text-gray-500">No attendance data available for this semester.</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
       </div>
-    </>
+    </div>
+    // No closing </> needed
   );
 }
 

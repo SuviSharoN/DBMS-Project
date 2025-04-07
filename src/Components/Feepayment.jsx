@@ -1,15 +1,16 @@
-import { useState } from "react";
-import { useNavigate } from 'react-router-dom'; // 1. Import useNavigate
+// src/Components/Feepayment.js
+import React from 'react'; // Explicitly import React (good practice)
+// Removed useState as it's not currently used
+// Removed useNavigate - handled by Layout.js
+// Removed annaunivlogo and name - handled by Layout.js
 
 function Feepayment() {
-  const navigate = useNavigate(); // 2. Instantiate useNavigate
-  const annaunivlogo = "/annaunivlogo.jpg";
-  const name = "SaravanaKumar B";
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [logoutSidebarOpen, setLogoutSidebarOpen] = useState(false);
 
+  // --- Data ---
+  // NOTE: In a real application, this data would likely come from an API call (e.g., using useEffect and useState) or props.
   const feeDetails = [
     {
+      id: 'sem3-2024', // Added a unique ID - better for keys
       description: "Semester 3",
       amount: "₹50,000",
       lateFee: "₹500",
@@ -18,9 +19,11 @@ function Feepayment() {
       totalAmt: "₹51,500",
       paidOn: "2024-01-10",
       status: "Paid",
-      receipt: "Download",
+      receipt: "Download", // Indicates a receipt is available
+      receiptUrl: "/path/to/receipt/sem3.pdf" // Example URL for the actual receipt
     },
     {
+      id: 'sem2-2024',
       description: "Semester 2",
       amount: "₹5,000",
       lateFee: "₹200",
@@ -30,8 +33,10 @@ function Feepayment() {
       paidOn: "2024-02-05",
       status: "Paid",
       receipt: "Download",
+      receiptUrl: "/path/to/receipt/sem2.pdf"
     },
     {
+      id: 'sem1-2023',
       description: "Semester 1",
       amount: "₹40,000",
       lateFee: "₹1,000",
@@ -40,104 +45,96 @@ function Feepayment() {
       totalAmt: "₹43,500",
       paidOn: "Pending",
       status: "Pending",
-      receipt: "-",
+      receipt: "-", // Indicates no receipt available
+      receiptUrl: null
     },
   ];
 
-  // --- Handle Logout with Confirmation ---
-  // 3. Create handleLogout function
-  const handleLogout = () => {
-    const isConfirmed = window.confirm("Are you sure you want to sign out?");
-    if (isConfirmed) {
-      // TODO: Add actual sign-out logic here (e.g., clear tokens, reset state)
-      console.log("Signing out confirmed...");
-      setLogoutSidebarOpen(false); // Close the dropdown
-      navigate('/login'); // Navigate to the login page ONLY if confirmed
-    } else {
-      console.log("Sign out cancelled.");
+  // --- Event Handlers ---
+  const handleDownloadReceipt = (receiptUrl) => {
+    if (!receiptUrl) {
+      console.error("No receipt URL provided.");
+      // Optionally show a user message
+      return;
     }
+    console.log("Attempting to download receipt from:", receiptUrl);
+    // TODO: Implement actual download logic.
+    // This might involve:
+    // 1. Making an API call to get a secure download link.
+    // 2. Directly linking to the URL if it's publicly accessible (less common/secure for receipts).
+    //    window.open(receiptUrl, '_blank'); // Opens in new tab
+    // 3. Triggering a file download initiated by the browser.
+    alert(`Download functionality not yet implemented for URL: ${receiptUrl}`);
   };
 
-  // --- Your existing JSX structure and CSS ---
+  // --- JSX for Fee Payment Content ONLY ---
   return (
-    <>
-     <div className="flex justify-between items-center p-4 bg-gradient-to-r from-[#07899d] to-[#22d3ee] shadow-lg rounded-md">
-        <div className="flex items-center gap-4">
-          <img src={annaunivlogo} alt="Anna Univ Logo" className="w-12 h-12 rounded-full" />
-          <h1 className="text-white text-lg font-bold">Fee Payment</h1>
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-white text-2xl">☰</button>
-        </div>
-        <div className="relative">
-          <div className="flex items-center gap-3">
-            <img src={annaunivlogo} alt="Profile" className="w-10 h-10 rounded-full" />
-            <div>
-              <h4 className="text-white text-sm font-medium">{name}</h4>
-              <button onClick={() => setLogoutSidebarOpen(!logoutSidebarOpen)} className="bg-white text-black px-3 py-1 text-sm rounded-md">▼</button>
-            </div>
-          </div>
-          {logoutSidebarOpen && (
-            <div className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-lg p-2">
-              {/* 4. Update the onClick handler for the Log Out button */}
-              <button
-                onClick={handleLogout} // Use the new handler
-                className="block w-full text-left px-4 py-2 hover:bg-gray-200"
-              >
-                Log Out
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
+    // Container for the fee payment section
+    <div className="container mx-auto p-4 max-w-6xl">
+      <h3 className="text-2xl font-bold text-center mb-6 text-gray-700">Fee Payment Details</h3>
 
-      <div className={`fixed top-0 left-0 w-64 h-full bg-gradient-to-r from-teal-700 to-cyan-400 text-white p-5 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} transition-transform duration-300`}>
-        <button onClick={() => setSidebarOpen(false)} className="text-xl">×</button>
-        <div className="mt-5 flex flex-col gap-3">
-          {/* NOTE: Sidebar buttons still lack navigation functionality as requested */}
-          {["Dashboard", "Circular", "Attendance", "Contact", "Time Table", "Course Enroll"].map((item) => (
-            <button key={item} className="bg-white text-blue-800 p-2 rounded-md hover:bg-blue-200">{item}</button>
-          ))}
-        </div>
-      </div>
+      {/* Card-like container for the table */}
+      <div className="bg-white p-4 rounded-lg shadow-md overflow-x-auto">
+        <table className="w-full border-collapse border border-gray-300 text-sm md:text-base">
+          {/* Table Header */}
+          <thead>
+            <tr className="bg-cyan-500 text-white">
+              <th className="p-3 border text-left">Description</th>
+              <th className="p-3 border text-right">Amount</th>
+              <th className="p-3 border text-right">Late Fee</th>
+              <th className="p-3 border text-right">Re-adm. Fee</th>
+              <th className="p-3 border text-right">Penalty</th>
+              <th className="p-3 border text-right">Total Amt.</th>
+              <th className="p-3 border text-center">Paid/Conf. On</th>
+              <th className="p-3 border text-center">Status</th>
+              <th className="p-3 border text-center">Receipt</th>
+            </tr>
+          </thead>
 
-      <div className="container mx-auto mt-8 p-4 max-w-4xl">
-        <h3 className="text-lg font-bold text-center mb-4">Fee Details</h3>
-        <div className="overflow-x-auto" style={{ minHeight: "calc(100% + 100px)" }}>
-        <table className="w-full border-collapse border border-gray-300" style={{ minHeight: "250px" }}>
-            <thead>
-              <tr className="bg-cyan-400 text-white">
-                <th className="p-2 border">Description</th>
-                <th className="p-2 border">Amount</th>
-                <th className="p-2 border">Late Fee</th>
-                <th className="p-2 border">Re-adm. Fee</th>
-                <th className="p-2 border">Penalty</th>
-                <th className="p-2 border">Total Amt.</th>
-                <th className="p-2 border">Paid/Conf. On</th>
-                <th className="p-2 border">Status</th>
-                <th className="p-2 border">Receipt</th>
-              </tr>
-            </thead>
-            <tbody>
-              {feeDetails.map((fee, index) => (
-                <tr key={index} className="text-center border">
-                  <td className="p-2 border">{fee.description}</td>
-                  <td className="p-2 border">{fee.amount}</td>
-                  <td className="p-2 border">{fee.lateFee}</td>
-                  <td className="p-2 border">{fee.reAdmFee}</td>
-                  <td className="p-2 border">{fee.penalty}</td>
-                  <td className="p-2 border">{fee.totalAmt}</td>
-                  <td className="p-2 border">{fee.paidOn}</td>
-                  <td className={`p-2 border font-bold ${fee.status === "Paid" ? "text-green-600" : "text-red-600"}`}>{fee.status}</td>
-                  <td className="p-2 border">
-                    {/* NOTE: Download button still lacks functionality */}
-                    {fee.receipt === "Download" ? <button className="bg-blue-600 text-white px-3 py-1 rounded-md">Download</button> : "-"}
+          {/* Table Body */}
+          <tbody>
+            {feeDetails.length > 0 ? (
+              // Map over fee details to create table rows
+              feeDetails.map((fee) => ( // Use a unique ID for the key if available
+                <tr key={fee.id} className="border hover:bg-gray-100 transition-colors duration-150">
+                  <td className="p-3 border text-left">{fee.description}</td>
+                  <td className="p-3 border text-right">{fee.amount}</td>
+                  <td className="p-3 border text-right">{fee.lateFee}</td>
+                  <td className="p-3 border text-right">{fee.reAdmFee}</td>
+                  <td className="p-3 border text-right">{fee.penalty}</td>
+                  <td className="p-3 border text-right font-semibold">{fee.totalAmt}</td>
+                  <td className="p-3 border text-center">{fee.paidOn}</td>
+                  {/* Conditional styling for status */}
+                  <td className={`p-3 border text-center font-semibold ${fee.status === "Paid" ? "text-green-600" : "text-red-600"}`}>
+                    {fee.status}
+                  </td>
+                  {/* Conditional rendering for the download button */}
+                  <td className="p-3 border text-center">
+                    {fee.receipt === "Download" && fee.receiptUrl ? (
+                      <button
+                        onClick={() => handleDownloadReceipt(fee.receiptUrl)} // Call handler on click
+                        className="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 text-xs md:text-sm transition-colors duration-150"
+                        aria-label={`Download receipt for ${fee.description}`} // Accessibility
+                      >
+                        Download
+                      </button>
+                    ) : (
+                      // Display a dash if no receipt is available
+                      "-"
+                    )}
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              ))
+            ) : (
+              // Display message if no fee details exist
+              <tr>
+                <td colSpan="9" className="text-center p-4 text-gray-500">No fee details found.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
-    </>
+    </div>
   );
 }
 
