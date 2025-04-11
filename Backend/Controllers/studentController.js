@@ -100,14 +100,17 @@ const createCredential = async (id, password) => {
     // };
     export const rolecheck = async (id) => {
       const newStudent = await Student.findOne({ where: { id } });
+      if (newStudent) return { success: true, role: 'Student' };
+    
       const newFaculty = await Faculty.findOne({ where: { id } });
+      if (newFaculty) return { success: true, role: 'Faculty' };
+    
       const newAdmin = await Admin.findOne({ where: { id } });
-  
-      if (newStudent.length !== 0) return { success: true, role: 'Student' };
-      else if (newFaculty.length !== 0) return { success: true, role: 'Faculty' };
-      else if (newAdmin.length !== 0) return { success: true, role: 'Admin' };
-      else return { success: false, message: 'Role not found' };
-  };
+      if (newAdmin) return { success: true, role: 'Admin' };
+    
+      return { success: false, message: 'Role not found' };
+    };
+    
 
     export const getDashboard = async (req, res) => {
         try {

@@ -1,24 +1,22 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-
 
 function FacultyDashboard() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [faculty, setFaculty] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const iphone = "/annaunivlogo.jpg"; // Image from the public folder
-  const navigate = useNavigate();
+  const profileImage = "/annaunivlogo.jpg"; // Image from public folder
+
   useEffect(() => {
     const fetchFaculty = async () => {
       try {
         const res = await axios.get(`http://localhost:5000/api/faculty/dashboard/${id}`);
-        console.log(res);
         setFaculty(res.data.data.newFaculty);
       } catch (error) {
-        console.error("Error fetching student:", error);
+        console.error("Error fetching faculty:", error);
       } finally {
         setLoading(false);
       }
@@ -28,77 +26,81 @@ function FacultyDashboard() {
   }, [id]);
 
   if (loading) return <div className="p-6 text-center text-xl">Loading...</div>;
-  if (!faculty) return <div className="p-6 text-center text-xl text-red-600"> Faculty not found.</div>;
+  if (!faculty) return <div className="p-6 text-center text-xl text-red-600">Faculty not found.</div>;
 
   const facultyInfo = [
     { label: "Name", value: faculty.name },
-    { label: "Faculty Id", value: faculty.id },
+    { label: "Faculty ID", value: faculty.id },
     { label: "Email", value: faculty.email },
-    { label: "Department", value: faculty.department},
+    { label: "Department", value: faculty.department },
   ];
 
   const dashboardOptions = [
-    { label: "Circular", path: "/dashboard/circular" },
-    { label: "Contact", path: "/dashboard/contact" },
+    { label: "Circulars", path: "/dashboard/circular" },
     { label: "Attendance", path: "/dashboard/attendance" },
-    { label: "Time Table", path: "/dashboard/timetable" },
-    { label: "Course Enroll", path: "/dashboard/course-enroll" },
-  ];  
+    { label: "Fee Payments", path: "/dashboard/fee" },
+    { label: "Timetable", path: "/dashboard/timetable" },
+    // { label: "Course Enrollment", path: "/dashboard/course-enroll" },
+    { label: "Contact Info", path: "/dashboard/contact" },
+  ];
 
   const handleSignOut = () => {
-    
-    const isConfirmed = window.confirm("Are you sure you want to sign out?");
-
-  
-    if (isConfirmed) {
-      
-      console.log("Signing out confirmed...");
-      navigate('/login'); 
-    } else {
-     
-      console.log("Sign out cancelled.");
+    if (window.confirm("Are you sure you want to sign out?")) {
+      navigate("/login");
     }
-  }; 
+  };
+
   return (
-    <div className="relative flex flex-col items-center py-12 min-h-screen bg-gray-100">
-      {/* Sign Out Button (Top Right) */}
+    <div className="p-4 md:p-6 lg:p-8 relative min-h-screen bg-gray-50">
+      {/* Sign Out Button */}
       <div className="absolute top-6 right-6">
         <button
-          onClick={handleSignOut} // This now triggers the confirmation first
+          onClick={handleSignOut}
           className="bg-red-500 text-white py-3 px-6 rounded-lg text-lg font-semibold shadow-md hover:bg-red-600 hover:scale-105 transition-all duration-300"
         >
           Sign Out
         </button>
       </div>
 
-      <h2 className="text-4xl font-bold text-gray-800 mb-10">Faculty Dashboard</h2>
+      <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-8 text-center md:text-left">
+        Welcome, {faculty.name}!
+      </h2>
 
-      <div className="flex flex-col md:flex-row bg-white shadow-xl border border-gray-300 p-8 rounded-xl w-full max-w-5xl">
-        {/* Left Section */}
-        <div className="w-full md:w-1/2 flex flex-col items-center p-6 border-r border-gray-300">
-          <div className="w-56 h-56 rounded-full overflow-hidden border-4 border-gray-400 shadow-lg">
-            <img src={iphone} alt="Student Profile" className="w-full h-full object-cover" />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+        {/* Profile Card */}
+        <div className="lg:col-span-1 bg-gradient-to-br from-white to-gray-50 shadow-xl rounded-xl p-6 border border-gray-200 flex flex-col items-center">
+          <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-cyan-200 shadow-lg mb-5 flex-shrink-0 ring-2 ring-cyan-400 ring-offset-2">
+            <img src={profileImage} alt="Faculty Profile" className="w-full h-full object-cover" />
           </div>
-          <div className="text-left w-full mt-6">
-            <h3 className="text-2xl font-semibold text-gray-700 mb-4">Faculty Information</h3>
-            {facultyInfo.map((item, index) => (
-              <p key={index} className="text-lg text-gray-600">
-                <span className="font-medium text-gray-900">{item.label}:</span> {item.value}
-              </p>
-            ))}
+
+          <div className="text-center w-full">
+            <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-1">{faculty.name}</h3>
+            <p className="text-sm text-cyan-700 font-medium mb-3">{faculty.department}</p>
+            <div className="text-left w-full space-y-2 text-sm md:text-base border-t pt-4 mt-4">
+              {facultyInfo.map((info, index) => (
+                <p key={index} className="text-gray-600">
+                  <span className="font-semibold text-gray-700 w-28 inline-block">{info.label}:</span>{" "}
+                  <span className="break-words">{info.value}</span>
+                </p>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="w-full md:w-1/2 flex flex-wrap justify-center items-center content-start gap-6 p-6">
-          {dashboardOptions.map((option, index) => (
-            <button
-              key={index}
-              onClick={() => navigate(option.path)} // Navigate to the defined path
-              className="w-48 bg-gradient-to-r from-blue-400 to-blue-600 text-white py-3 px-6 rounded-lg text-lg font-semibold shadow-md hover:scale-105 hover:from-blue-500 hover:to-blue-700 transition-all duration-300"
-            >
-              {option.label}
-            </button>
-          ))}
+        {/* Quick Action Buttons */}
+        <div className="lg:col-span-2 bg-white shadow-xl rounded-xl p-6 border border-gray-200">
+          <h3 className="text-xl md:text-2xl font-semibold text-gray-700 mb-6 border-b pb-3">Quick Actions</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-6">
+            {dashboardOptions.map((option, index) => (
+              <button
+                key={index}
+                onClick={() => navigate(option.path)}
+                className="p-4 md:p-5 rounded-lg text-center bg-gradient-to-r from-cyan-50 to-blue-100 text-blue-800 font-semibold shadow-md border border-blue-200 hover:shadow-lg hover:scale-[1.03] hover:from-cyan-100 hover:to-blue-200 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-400"
+              >
+                <span className="text-sm md:text-base">{option.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>

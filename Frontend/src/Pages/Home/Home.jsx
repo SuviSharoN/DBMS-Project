@@ -1,9 +1,9 @@
 import { Route,Routes } from "react-router-dom";
-import Contact  from "../Contact/Contact";
+import Contact  from "../Contact/Contact.jsx";
 import Fee from "../Fee/Feepayment.jsx";
-import Circular from '../Circular/Circular';
+import Circular from '../Circular/Circular.jsx';
 import Attendance from '../Attendance/Attendance';
-import Timetable from '../Timetable/Timetable';
+import Timetable from '../Timetable/Timetable.jsx';
 import Dashboard from '.../Components/Dashboard'
 
 const Home = () =>{
