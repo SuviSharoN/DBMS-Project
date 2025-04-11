@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'; // For potential redirects
 import axios from 'axios'; // Import axios directly
 
 // --- Constants ---
-const CREDIT_LIMIT = 25;
+const CREDIT_LIMIT = 22;
 // Define target counts for specific credit values (e.g., 1x 5-credit, 2x 4-credit, 3x 3-credit)
 const TARGET_CREDIT_COUNTS = { 5: 1, 4: 2, 3: 3 };
 const REQUIRED_CREDIT_VALUES = Object.keys(TARGET_CREDIT_COUNTS).map(Number); // [5, 4, 3]
@@ -152,7 +152,7 @@ function CourseEnroll() {
         selectedCourses.forEach(courseId => {
             const course = courseMap.get(courseId);
             if (course) {
-                currentTotal += course.credits;
+                currentTotal += Number(course.credits);
                 if (Object.prototype.hasOwnProperty.call(counts,course.credits)) {
                     counts[course.credits]++;
                 }
@@ -210,42 +210,164 @@ function CourseEnroll() {
     // --- Event Handlers ---
 
     // Toggle Selection of a Course
+        // Toggle Selection of a Course
     const handleToggleSelect = (courseId) => {
         const course = courseMap.get(courseId);
-        if (!course) return;
-        const newSelectedCourses = new Set(selectedCourses);
+        if (!course) {
+             console.error(`Course with ID ${courseId} not found in courseMap.`);
+             return; // Course not found, should not happen
+         }
+
+        const newSelectedCourses = new Set(selectedCourses); // Create a mutable copy of the Set
         const isSelected = newSelectedCourses.has(courseId);
+
         if (isSelected) {
+            // If currently selected, deselect it (no limit check needed)
+             console.log(`Deselecting ${course.id} (${course.name})`);
             newSelectedCourses.delete(courseId);
         } else {
-            const potentialTotalCredits = totalCredits + course.credits;
+            // --- DETAILED DEBUGGING FOR SELECTION ATTEMPT ---
+            console.log(`--- Attempting to select ${course.id} (${course.name}) ---`);
+            console.log(`Course Credits: ${course.credits} (Type: ${typeof course.credits})`);
+            console.log(`Current Total Credits State: ${totalCredits} (Type: ${typeof totalCredits})`);
+
+            // Ensure credits are numbers before calculation
+            const currentCreditsNumber = Number(totalCredits);
+            const courseCreditsNumber = Number(course.credits);
+
+            if (isNaN(currentCreditsNumber) || isNaN(courseCreditsNumber)) {
+                 console.error("INVALID DATA TYPE: Credits could not be converted to numbers.", { currentCreditsNumber, courseCreditsNumber });
+                 alert("An internal error occurred (invalid credit data). Cannot select course.");
+                 return; // Prevent selection if data types are wrong
+            }
+
+            const potentialTotalCredits = currentCreditsNumber + courseCreditsNumber;
+            console.log(`Calculated Potential Total Credits: ${potentialTotalCredits}`);
+            console.log(`Credit Limit: ${CREDIT_LIMIT}`);
+            // --- END DETAILED DEBUGGING ---
+
+            // Check 1: Overall credit limit
             if (potentialTotalCredits > CREDIT_LIMIT) {
-                alert(`Cannot select "${course.name}". Adding it would exceed the credit limit of ${CREDIT_LIMIT}. Current total: ${totalCredits}.`);
-                return;
+                console.log("%cCREDIT LIMIT EXCEEDED - Preventing selection.", "color: red; font-weight: bold;");
+                alert(`Cannot select "${course.name}". Adding it (${courseCreditsNumber} credits) would exceed the credit limit of ${CREDIT_LIMIT}. Current total: ${currentCreditsNumber}.`);
+                return; // Stop selection
+            } else {
+                 console.log("%cCredit limit check PASSED.", "color: green;");
             }
-            if (Object.prototype.hasOwnProperty.call(selectedCreditCounts,course.credits)) {
-                if (selectedCreditCounts[course.credits] >= TARGET_CREDIT_COUNTS[course.credits]) {
-                    alert(`Cannot select another ${course.credits}-credit course. You have already selected the maximum allowed (${TARGET_CREDIT_COUNTS[course.credits]}).`);
-                    return;
+
+            // Check 2: Specific credit count limit (Only if limit check passed)
+            if (Object.prototype.hasOwnProperty.call(selectedCreditCounts, courseCreditsNumber)) {
+                if (selectedCreditCounts[courseCreditsNumber] >= TARGET_CREDIT_COUNTS[courseCreditsNumber]) {
+                    console.log(`%cSPECIFIC CREDIT COUNT LIMIT REACHED for ${courseCreditsNumber}-credit courses. Preventing selection.`, "color: orange;");
+                    alert(`Cannot select another ${courseCreditsNumber}-credit course. You have already selected the maximum allowed (${TARGET_CREDIT_COUNTS[courseCreditsNumber]}).`);
+                    return; // Stop selection
+                } else {
+                    console.log(`Specific credit count check PASSED for ${courseCreditsNumber}-credit courses.`);
                 }
+            } else {
+                 console.log(`Course credit value ${courseCreditsNumber} is not specifically tracked by TARGET_CREDIT_COUNTS.`);
             }
+
+            // If all checks pass, add the course ID to the selection
+            console.log("All checks passed. Adding course to selection.");
             newSelectedCourses.add(courseId);
         }
+        // Update the state with the new Set (either added or removed)
         setSelectedCourses(newSelectedCourses);
     };
 
     // Submit Enrollment (Student Action)
     const handleSubmitEnrollment = async () => {
-        if (!isStudent) { alert("Only students are allowed to submit enrollment."); return; }
-        if (!constraintsMet) { alert("Please ensure you meet all specific credit requirements (e.g., number of 3/4/5 credit courses) before submitting."); return; }
-        if (totalCredits > CREDIT_LIMIT) { alert("Your total selected credits exceed the limit. Please deselect one or more courses."); return; }
-        if (selectedCourses.size === 0) { alert("Please select at least one course to enroll."); return; }
-        const studentId = localStorage.getItem('userId');
-        if (!studentId) { alert("Error: Could not identify student. Please log in again."); return; }
-        const enrollmentData = { studentId: studentId, courseIds: Array.from(selectedCourses) };
-        console.log("Submitting enrollment data:", enrollmentData);
-        alert("Note: Enrollment submission API call is not fully implemented in this example.\nData to be sent:\n" + JSON.stringify(enrollmentData, null, 2));
-        // TODO: Implement the actual API call (see previous examples for structure with headers)
+        // 1. Role and Constraint Checks (Keep these)
+        if (!isStudent) {
+            alert("Only students are allowed to submit enrollment.");
+            return;
+        }
+        if (!constraintsMet) {
+            alert("Please ensure you meet all specific credit requirements before submitting.");
+            return;
+        }
+        if (totalCredits > CREDIT_LIMIT) {
+            alert("Your total selected credits exceed the limit. Please deselect one or more courses.");
+            return;
+        }
+        if (selectedCourses.size === 0) {
+            alert("Please select at least one course to enroll.");
+            return;
+        }
+
+        // 2. Prepare Payload for Backend
+        // Backend expects an object with a 'courseIds' array.
+        // It gets the studentId from the JWT token via middleware.
+        const enrollmentPayload = {
+            courseIds: Array.from(selectedCourses) // Convert Set to Array
+        };
+        console.log("Attempting to submit enrollment data:", enrollmentPayload);
+
+        // 3. Get Authentication Headers
+        const headers = getAuthHeaders(); // Use the existing helper function
+        if (!headers) {
+             // Error/redirect should have happened inside getAuthHeaders if token was missing
+             alert("Authentication failed. Please log in again.");
+             return;
+        }
+
+        // 4. Set Loading State and Clear Errors
+        setIsLoading(true);
+        setError(null);
+
+        // 5. Make the API Call using Axios
+        try {
+            // Use axios.post to send data to the backend endpoint
+            const response = await axios.post(
+                `${BASE_URL}/enrollments`, // Your backend endpoint
+                enrollmentPayload,         // The data payload { courseIds: [...] }
+                { headers }                // The authorization headers
+            );
+
+            // 6. Handle Successful Response
+            if (response.data.success) {
+                alert(response.data.message || `Enrollment successful!`); // Display success message from backend
+                // --- Actions on Success ---
+                // a) Clear the current selection
+                setSelectedCourses(new Set());
+                // b) Optional: Refetch available courses if enrollment affects availability (unlikely here)
+                // fetchCoursesInternal(); // If needed, but ensure fetchCoursesInternal is accessible or restructure
+                // c) Optional: Navigate the user back to their main dashboard
+                // const studentId = localStorage.getItem('userId'); // Get ID for navigation
+                // if (studentId) navigate(`/dashboard/${studentId}`);
+                console.log("Enrollment successful response:", response.data);
+            } else {
+                // Handle cases where the backend might return success: false with a 2xx status
+                throw new Error(response.data.message || "Enrollment submission failed on the server.");
+            }
+        } catch (enrollError) {
+            // 7. Handle Errors during API Call
+            console.error("Enrollment submission error:", enrollError);
+            // Display specific error from backend if available, otherwise generic message
+            let errorMsg = "Enrollment submission failed. Please try again.";
+            if (enrollError.response) {
+                 // Use backend message if provided
+                 errorMsg = enrollError.response.data?.message || errorMsg;
+                 // Handle specific status codes if needed
+                 if (enrollError.response.status === 401 || enrollError.response.status === 403) {
+                      errorMsg = "Authentication or Permission Error. Please log in again.";
+                      // Optionally trigger redirect here too
+                      // localStorage.clear(); navigate('/login');
+                 } else if (enrollError.response.status === 409) { // Conflict (e.g., already enrolled)
+                      errorMsg = enrollError.response.data?.message || "Enrollment conflict detected.";
+                 }
+            } else if (enrollError.request) {
+                 errorMsg = "Network Error: Could not reach server.";
+            } else {
+                 errorMsg = enrollError.message || errorMsg; // Use error message directly if available
+            }
+            alert(errorMsg); // Show error message to the user
+            setError(errorMsg); // Optionally set error state too
+        } finally {
+            // 8. Turn off Loading State
+            setIsLoading(false);
+        }
     };
 
     // Add a New Course (Admin Action)
@@ -494,13 +616,22 @@ function CourseEnroll() {
                             const isSelected = selectedCourses.has(course.id);
                             let isSelectDisabled = false;
                             let selectDisabledReason = '';
-                            if (isStudent && !isSelected) {
-                                if (totalCredits + course.credits > CREDIT_LIMIT) {
-                                     isSelectDisabled = true; selectDisabledReason = 'Adding this course exceeds the total credit limit.';
-                                } else if (Object.prototype.hasOwnProperty.call(selectedCreditCounts,course.credits) && selectedCreditCounts[course.credits] >= TARGET_CREDIT_COUNTS[course.credits]) {
-                                     isSelectDisabled = true; selectDisabledReason = `Maximum number of ${course.credits}-credit courses already selected.`;
+                            const currentTotalNum = Number(totalCredits);
+                                const courseCreditsNum = Number(course.credits); // Convert course credits too
+
+                                if (isNaN(currentTotalNum) || isNaN(courseCreditsNum)) {
+                                     // Handle potential errors if conversion fails (shouldn't happen with good data)
+                                     console.error("Error converting credits to numbers for display check:", {totalCredits, courseCredits: course.credits});
+                                } else {
+                                     // Now use the numbers for comparison
+                                     if (currentTotalNum + courseCreditsNum > CREDIT_LIMIT) { // Check 1: Overall limit
+                                          isSelectDisabled = true;
+                                          selectDisabledReason = 'Adding this course exceeds the total credit limit.';
+                                     } else if (Object.prototype.hasOwnProperty.call(selectedCreditCounts, courseCreditsNum) && selectedCreditCounts[courseCreditsNum] >= TARGET_CREDIT_COUNTS[courseCreditsNum]) { // Check 2: Specific limit (Use courseCreditsNum here too)
+                                          isSelectDisabled = true;
+                                          selectDisabledReason = `Maximum number of ${courseCreditsNum}-credit courses already selected.`;
+                                     }
                                 }
-                            }
                             return (
                                 // Course Item Div
                                 <div
