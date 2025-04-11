@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation buttons
-
+import axios from "axios";
 function AdminRegister() {
   // State for form fields
   const [formData, setFormData] = useState({
     fullName: "",
-    adminId: "", // Changed from facultyId
+    adminId: "",
+    adminEmail : "" ,  // Changed from facultyId
     password: "",
     confirmPassword: "",
   });
@@ -42,10 +43,10 @@ function AdminRegister() {
     setSuccess("");
     setIsSubmitting(true);
 
-    const { fullName, adminId, password, confirmPassword } = formData;
+    const { fullName, adminId, adminEmail ,  password, confirmPassword } = formData;
 
     // --- Basic Validation ---
-    if (!fullName || !adminId || !password || !confirmPassword) {
+    if (!fullName || !adminId || !adminEmail || !password || !confirmPassword) {
       setError("All fields are required.");
       setIsSubmitting(false);
       return;
@@ -60,15 +61,23 @@ function AdminRegister() {
     // --- TODO: Replace with actual API call to backend ---
     console.log("Submitting Admin Registration Data:", formData);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const modifiedFormData = {
+        ...formData,
+        id: formData.adminId , 
+        name : formData.fullName , 
+        email : formData.adminEmail , 
+        password : formData.password, 
 
+      };
+      const res = await axios.post("http://localhost:5000/api/admin", modifiedFormData);
       setSuccess("Admin registration successful!");
-      // Clear form on success
       setFormData({
-        fullName: "", adminId: "", password: "", confirmPassword: ""
+        fullName: "", adminId: "", adminEmail : "" , password: "", confirmPassword: "",
       });
-      // No automatic navigation here
+      console.log("Admin added:", res.data);
+      alert("Registration successful!");
+      const admin_id = modifiedFormData.adminId;
+      navigate(`/admin_dashboard/${admin_id}`);
 
     } catch (apiError) {
       console.error("API Error:", apiError);
@@ -115,6 +124,20 @@ function AdminRegister() {
               onChange={handleChange}
               className="w-full px-4 py-2 mt-1 border rounded-md focus:ring focus:ring-blue-300 outline-none"
               placeholder="Enter admin ID"
+              required
+              disabled={isSubmitting || !!success}
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 font-medium">Admin Email</label>
+            <input
+              type="email"
+              name="adminEmail" // Use adminId
+              value={formData.adminEmail}
+              onChange={handleChange}
+              className="w-full px-4 py-2 mt-1 border rounded-md focus:ring focus:ring-blue-300 outline-none"
+              placeholder="Enter admin Email"
               required
               disabled={isSubmitting || !!success}
             />

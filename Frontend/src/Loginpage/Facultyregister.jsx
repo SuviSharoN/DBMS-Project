@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation buttons
+import { useNavigate } from "react-router-dom";
+import axios from "axios"; // Import useNavigate for navigation buttons
 
 function FacultyRegister() {
   // State for form fields
@@ -62,16 +63,27 @@ function FacultyRegister() {
     // --- TODO: Replace with actual API call to backend ---
     console.log("Submitting Faculty Registration Data:", formData);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Simulate API calll
+      const modifiedFormData = {
+        ...formData,
+        id: formData.facultyId , 
+        name : formData.fullName , 
+        email : formData.email , 
+        department : formData.department,
+        password : formData.password , 
 
+      };
+      const res = await axios.post("http://localhost:5000/api/faculty", modifiedFormData);
       setSuccess("Faculty registration successful!");
       // Clear form on success
       setFormData({
         fullName: "", facultyId: "", department: "", email: "", password: "", confirmPassword: ""
       });
       // No automatic navigation here as per previous request
-
+      console.log("Faculty added:", res.data);
+      alert("Registration successful!");
+      const faculty_id = modifiedFormData.facultyId;
+      navigate(`/faculty_dashboard/${faculty_id}`);
     } catch (apiError) {
       console.error("API Error:", apiError);
       setError(apiError.message || "Registration failed. Please try again.");

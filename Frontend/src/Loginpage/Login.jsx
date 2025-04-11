@@ -18,14 +18,16 @@
           setError("Both fields are required!");
           return;
         }
-        const int_id = parseInt(id);
+        //const int_id = parseInt(id);
         const response = await axios.post("http://localhost:5000/api/login",{
-          id:int_id,
+          id,
           password
         });
         if (response.data.success) {
           alert(`Login successful! Welcome, ${id}`);
-          navigate(`/dashboard/${int_id}`);
+          if(response.data.role == 'Student') navigate(`/dashboard/${id}`);
+          else if(response.data.role == 'Faculty') navigate (`/faculty_dashboard/${id}`);
+          else navigate(`/admin_dashboard/${id}`);
         } else {
           setError(response.data.message || "Invalid credentials!");
         }

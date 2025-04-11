@@ -9,12 +9,16 @@ import RegisterPage from "./Loginpage/Registerpage";
 import RegisterOptions from "./Loginpage/RegisterOptions";
 import FacultyRegister from "./Loginpage/Facultyregister";
 import AdminRegister from "./Loginpage/AdminRegister";
+import FacultyDashboard from "./Components/FacultyDashboard";
+import AdminDashboard from "./Components/AdminDashboard";
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<RegisterPage/>} />
+      <Route path="/" element={<Login/>} />
       <Route path="/dashboard/:id" element={<Dashboard />} />
-      <Route path="/login" element={<Login />} />
+      <Route path="/faculty_dashboard/:id" element = {<FacultyDashboard/>}/>
+      <Route path ="admin_dashboard/:id" element ={<AdminDashboard/>}/>
+      <Route path="/login" element={<Login/>} />
       <Route path="/registeroptions" element={<RegisterOptions />} />
         <Route path="/student-register" element = {<RegisterPage/>}/>
         <Route path="/faculty-register" element={<FacultyRegister />} />

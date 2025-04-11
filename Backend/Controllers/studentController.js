@@ -2,7 +2,10 @@
     import Contact from '../Models/contactModel.js';
     import Academics from '../Models/academicsModel.js';
     import Credential from '../Models/credentialModel.js';
+    import Admin from '../Models/adminModel.js';
     import bcrypt from 'bcryptjs';
+    
+import Faculty from '../Models/facultyModel.js';
 //bycrypting password
 const createCredential = async (id, password) => {
     try {
@@ -95,23 +98,71 @@ const createCredential = async (id, password) => {
     //     res.status(500).json({success : false , message : "Server Error"});
     //     }
     // };
+    export const rolecheck = async (id) => {
+      const newStudent = await Student.findOne({ where: { id } });
+      const newFaculty = await Faculty.findOne({ where: { id } });
+      const newAdmin = await Admin.findOne({ where: { id } });
+  
+      if (newStudent.length !== 0) return { success: true, role: 'Student' };
+      else if (newFaculty.length !== 0) return { success: true, role: 'Faculty' };
+      else if (newAdmin.length !== 0) return { success: true, role: 'Admin' };
+      else return { success: false, message: 'Role not found' };
+  };
 
     export const getDashboard = async (req, res) => {
         try {
           const { id } = req.params;
-          console.log(id + "IDDD");
-          const student = await Student.findByPk(id); 
-          const contact = await Contact.findAll(({where : {student_id : id}}));
-          const academic = await Academics.findAll(({where : {student_id : id}}));
-      
-          if (!student) {
-            return res.status(404).json({ success: false, message: "Student not found" });
+          const validate = await rolecheck(id);
+          console.log(validate);
+          if(!validate.success){
+            res.status(500).json({success : false ,  message : validate.role});
           }
-      
-          res.status(200).json({ success: true, data: {student,contact,academic}});
-        } catch (error) {
-          console.error("Error fetching student dashboard data:", error);
-          res.status(500).json({ success: false, message: "Server Error" });
+          else if(validate.role === 'Student'){
+            try{
+              const student = await Student.findByPk(id); 
+              const contact = await Contact.findAll(({where : {student_id : id}}));
+              const academic = await Academics.findAll(({where : {student_id : id}}));
+          
+              if (!student) {
+                return res.status(404).json({ success: false, message: "Student not found" });
+              }
+          
+              res.status(200).json({ success: true, role: 'Student' , data: {student,contact,academic}});
+            }
+            catch (error) {
+              console.error("Error fetching student dashboard data:", error);
+              res.status(500).json({ success: false, message: "Server Error" });
+            }
+          }
+
+          else if(validate.role === 'Faculty'){
+            try {
+              const newFaculty= await Faculty.findOne({where : {id}});
+              if(!newFaculty){
+                return res.status(404).json({ success: false, message: "Faculty not found" });
+              }
+              res.status(200).json({ success: true, role: 'Faculty' , data: {newFaculty}});
+            } catch (error) {
+              console.error("Error fetching faculty dashboard data:", error);
+              res.status(500).json({ success: false, message: "Server Error" });
+            }
+          }
+          else {
+            try {
+              const newAdmin= await Admin.findOne({where : {id}});
+              if(!newAdmin){
+                return res.status(404).json({ success: false, message: "Faculty not found" });
+              }
+              res.status(200).json({ success: true, role: 'Admin' , data: {newAdmin}});
+            } catch (error) {
+              console.error("Error fetching Admin dashboard data:", error);
+              res.status(500).json({ success: false, message: "Server Error" });
+            }
+          }
+
         }
+          catch(error){
+            console.log('Error' , error);
+          }
       };
       

@@ -32,7 +32,7 @@ const Student = sequelize.define(
             allowNull: false,
         },
         category: {
-            type: DataTypes.ENUM("BC", "MBC", "SC", "ST"),
+            type: DataTypes.ENUM("BC", "MBC", "SC", "ST" , "OC"),
             allowNull: false,
         },
         reservation: {
