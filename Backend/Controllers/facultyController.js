@@ -26,7 +26,18 @@ export const getFaculty = async (req , res) =>{
         res.status(500).json({success : false , message : "Server Error"});
      }
 };
-
+export const getAllFaculties = async (req, res) => {
+    try {
+        const faculties = await Faculty.findAll({
+             attributes: ['id', 'name'], // Only send needed info
+             order: [['name', 'ASC']]
+         });
+        res.status(200).json({ success: true, data: faculties });
+    } catch (error) {
+        console.error("Error fetching faculties:", error);
+        res.status(500).json({ success: false, message: 'Server Error fetching faculties.', error: error.message });
+    }
+};
 export const getFacultyDashboard = async (req , res) =>{
     try {
         const {id} = req.params;

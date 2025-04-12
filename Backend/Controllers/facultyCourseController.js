@@ -1,27 +1,63 @@
-import facultyCourse from '../Models/facultyCoursesModel.js';
-export const addFacultyCourses = async (req , res) =>{
+// Backend/Controllers/facultyCourseController.js
+import facultyCourse from '../Models/facultyCoursesModel.js'; // Direct import
+import Course from '../Models/courseModel.js';
+import Faculty from '../Models/facultyModel.js';
+import sequelize from '../Configuration/dbConnect.js';
+
+// POST /api/facultycourses (Admin creates link)
+export const addFacultyCourses = async (req, res) => {
+    const transaction = await sequelize.transaction();
     try {
-        const {faculty_id , course_id , seats} = req.body;
-        if(!faculty_id || !course_id ) return res.status(400).json({success : false , message : "Please provide all fields"});
- 
-        const newFacultyCourse = await facultyCourse.create({faculty_id , course_id , available_seats : seats});
-        res.status(200).json({success : true , data : newFacultyCourse});
+        const { faculty_id, course_id } = req.body;
+        if (!faculty_id || !course_id) {
+             await transaction.rollback();
+            return res.status(400).json({ success: false, message: "Please provide faculty_id and course_id" });
+        }
+        const courseIdUpper = course_id.toUpperCase();
+
+        // Verify course and faculty exist before creating link
+        const courseExists = await Course.findByPk(courseIdUpper, { transaction });
+        const facultyExists = await Faculty.findByPk(faculty_id, { transaction }); // Adjust type if faculty ID isn't integer
+
+        if (!courseExists) {
+             await transaction.rollback();
+            return res.status(404).json({ success: false, message: `Course with ID ${courseIdUpper} not found.` });
+        }
+        if (!facultyExists) {
+             await transaction.rollback();
+            return res.status(404).json({ success: false, message: `Faculty with ID ${faculty_id} not found.` });
+        }
+
+        // Check if link already exists
+        const existingLink = await facultyCourse.findOne({
+            where: { faculty_id: faculty_id, course_id: courseIdUpper },
+            transaction
+        });
+        if(existingLink){
+            await transaction.rollback();
+            return res.status(409).json({ success: false, message: `This faculty is already linked to this course.` });
+        }
+
+
+        const newFacultyCourse = await facultyCourse.create({
+            faculty_id,
+            course_id: courseIdUpper
+        }, { transaction });
+
+        await transaction.commit();
+        res.status(201).json({ success: true, message: 'Offering link created.', data: newFacultyCourse });
+
     } catch (error) {
-        console.log("Error in inserting facultyCourse records " , error);
-        res.status(500).json({success : false , message : "Server Error"});
+        await transaction.rollback();
+        console.log("Error in inserting facultyCourse records ", error);
+         if (error.name === 'SequelizeForeignKeyConstraintError') {
+            return res.status(404).json({ success: false, message: 'Invalid Course ID or Faculty ID provided.' });
+         }
+         if (error.name === 'SequelizeUniqueConstraintError') {
+              return res.status(409).json({ success: false, message: `This faculty is already linked to this course.` });
+         }
+        res.status(500).json({ success: false, message: "Server Error creating offering link.", error: error.message });
     }
 };
 
-export const getFacultyCourses = async (req , res) =>{
-    try {
-       const {id} = req.params;
-       const record = await  facultyCourse.findAll({where : {faculty_id : id}});
-       if (record.length === 0) {
-        return res.status(404).json({ success: false, message: "No faculty courses found" });
-       }
-       res.status(200).json({success : true , data : record});
-    } catch (error) {
-       console.log("Error in fetching facultyCourse records " , error);
-       res.status(500).json({success : false , message : "Server Error"});
-    } 
-};
+// Removed getFacultyCourses as it's replaced by GET /api/offerings

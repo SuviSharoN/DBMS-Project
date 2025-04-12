@@ -13,7 +13,7 @@ function Login() {
     const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
-    const BASE_URL = 'http://localhost:5000/api'; // Define your base URL
+    const BASE_URL = 'http://localhost:5000/api/auth'; // Define your base URL
 
     const handleRegister = () => {
         navigate("/registeroptions");
@@ -52,7 +52,7 @@ function Login() {
                 // Navigate based on role
                 if (role === 'Student') navigate(`/dashboard/${userId}`);
                 else if (role === 'Faculty') navigate(`/faculty_dashboard/${userId}`);
-                else navigate(`/admin_dashboard/${userId}`);
+                else navigate(`/admin/dashboard/${userId}`);
 
             } else {
                 // This case might be less common if backend uses proper status codes

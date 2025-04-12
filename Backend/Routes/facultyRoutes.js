@@ -1,8 +1,7 @@
 import express from 'express';
-import { addFaculty, getFaculty, getFacultyDashboard } from '../Controllers/facultyController.js';
+import { getAllFaculties /* other handlers */ } from '../Controllers/facultyController.js'; // Need facultyController
+import { authMiddleware, adminMiddleware } from '../MiddleWare/authMiddleWare.js';
 const router = express.Router();
-
-router.post('/' , addFaculty);
-router.get('/:id' , getFaculty);
-router.get('/dashboard/:id' , getFacultyDashboard)
+router.get('/', authMiddleware, adminMiddleware, getAllFaculties); // Fetch faculties for dropdown
+// Add POST, DELETE etc. if needed
 export default router;

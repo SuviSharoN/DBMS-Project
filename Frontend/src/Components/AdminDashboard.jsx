@@ -50,7 +50,7 @@ function AdminDashboard() {
     { label: "Course Enrollment", path: "/admin/course-enroll" },
     { label: "Contact Info", path: "/dashboard/contact" },
   ];
-  // *** END OF CHANGE ***
+  // *** END OF CHANGE ***x
 
   // Keep original sign out handler
   const handleSignOut = () => {

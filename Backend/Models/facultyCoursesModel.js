@@ -1,56 +1,32 @@
+// Backend/Models/facultyCoursesModel.js (Assuming file name convention)
 import { DataTypes } from "sequelize";
-import  sequelize  from "../Configuration/dbConnect.js";
-import Faculty from "./facultyModel.js";
-import Course from "./courseModel.js";
+import sequelize from "../Configuration/dbConnect.js";
 
-const facultyCourse = sequelize.define(
-    "facultyCourse",
-    {
-        id : {
-            type : DataTypes.INTEGER , 
-            autoIncrement : true,
-            primaryKey : true
-            
-        },
-        faculty_id : {
-            type : DataTypes.STRING,
-            allowNull : false ,
-            references : {
-                model  : Faculty,
-                key : 'id'
-            }
-        },
-        course_id : {
-            type : DataTypes.STRING,
-            allowNull : false , 
-            references : {
-                model : Course,
-                key : 'id'
-            }
-        },
-        available_seats : {
-            type : DataTypes.INTEGER , 
-            defaultValue : 60
-        }
+const facultyCourse = sequelize.define("facultyCourse", {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
     },
-    {
-        timestamps : true,
-        indexes : [
-            {
-                unique : true ,
-                fields : ['faculty_id' , 'course_id']
-            }
-        ]
+    faculty_id: {
+        type: DataTypes.INTEGER, // *** MUST MATCH Faculty's ID TYPE ***
+        allowNull: false,
+        references: { model: 'faculties', key: 'id' } // Direct reference needed for FK constraint
+    },
+    course_id: {
+        type: DataTypes.STRING, // *** MUST MATCH Course's ID TYPE ***
+        allowNull: false,
+        references: { model: 'courses', key: 'id' } // Direct reference
     }
-);
+    // No available_seats
+}, {
+    tableName: 'facultyCourses', // Make sure table name is correct
+    timestamps: true, // You had timestamps true here
+    indexes: [
+        { unique: true, fields: ['faculty_id', 'course_id'] }
+    ]
+});
 
-const syncFacultyCourseTable = async ()=>{
-    try {
-        await facultyCourse.sync({alter : true});
-        console.log('Faculty Course table is created successfully');    
-    } catch (error) {
-        console.log('Error in creating Faculty Course table ' , error);    
-    }
-}
-syncFacultyCourseTable();
+// Removed the .associate method
+
 export default facultyCourse;

@@ -16,44 +16,24 @@ const Enrollment = sequelize.define(
             type : DataTypes.INTEGER,
             allowNull : false ,
             references : {
-                model : Student,
+                model : 'Students',
                 key : 'id'
             },
             onDelete : "CASCADE",
             onUpdate : "CASCADE"
         },
-        course_id : {
-            type : DataTypes.STRING , 
-            allowNull : false,
-            references : {
-                model : Course ,
-                key : 'id'
-            },
-            onDelete : "CASCADE",
-            onUpdate : "CASCADE"
-        },
-        faculty_id : {
-            type : DataTypes.STRING , 
-            allowNull : false,
-            references : {
-                model : Faculty , 
-                key : 'id'
-            },
-            onDelete : "CASCADE",
-            onUpdate : "CASCADE"
+        faculty_course_id: {
+            type: DataTypes.INTEGER, // Match facultyCourse.id type
+            allowNull: false,
+            references: {
+                model: 'facultyCourses', // The table name for facultyCourse
+                key: 'id'
+            }
         },
         enrollment_date :{
             type : DataTypes.DATE, 
             allowNull : false , 
             defaultValue : DataTypes.NOW
-        },
-        status : {
-            type : DataTypes.ENUM('Active' , 'Dropped' , 'Completed') ,
-            allowNull : false
-        },
-        additional_data : {
-            type : DataTypes.JSON,
-            allowNull : true
         }
 
     },{
@@ -61,19 +41,23 @@ const Enrollment = sequelize.define(
         indexes : [
            {
               unique : true , 
-              fields : ['student_id' , 'course_id']
+              fields : ['student_id' , 'faculty_course_id']
            }
         ]
     }
 );
-
-const syncEnrollmentTable = async ()=>{
-    try {
-        await Enrollment.sync();
-        console.log('Enrollment table is created successfully');
-    } catch (error) {
-        console.log('Error in creating Enrollment table ' , error);
-    }
-}
-syncEnrollmentTable();
+// Enrollment.associate = (models) => {
+//     Enrollment.belongsTo(models.Student, { foreignKey: 'student_id', as: 'student' });
+//     // An Enrollment belongs to one specific facultyCourse offering
+//     Enrollment.belongsTo(models.facultyCourse, { foreignKey: 'faculty_course_id', as: 'offering' });
+// };
+// const syncEnrollmentTable = async ()=>{
+//     try {
+//         await Enrollment.sync();
+//         console.log('Enrollment table is created successfully');
+//     } catch (error) {
+//         console.log('Error in creating Enrollment table ' , error);
+//     }
+// }
+// syncEnrollmentTable();
 export default Enrollment;

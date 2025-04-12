@@ -1,55 +1,30 @@
+// Backend/Models/facultyModel.js (Example)
 import { DataTypes } from "sequelize";
-import  sequelize  from "../Configuration/dbConnect.js";
-const Faculty = sequelize.define(
-    "Faculty",
-    {
-        id : {
-            type : DataTypes.STRING,
-            primaryKey : true
-        },
-        name : {
-            type : DataTypes.STRING,
-            allowNull : false,
-            set(value) {
-                this.setDataValue('name', value.trim());
-              }
-        },
-        email : {
-            type : DataTypes.STRING,
-            allowNull : false ,
-            unique : true , 
-            validate : {
-                isEmail : true
-            }
-        },
-        department : {
-            type : DataTypes.STRING,
-            allowNull : false,
-            set(value) {
-                this.setDataValue('department', value.trim());
-            }
-        },
-        password: 
-        {
-            type:DataTypes.STRING,
-            allowNull : false
-        }
+import sequelize from "../Configuration/dbConnect.js";
+
+const Faculty = sequelize.define("Faculty", {
+    id: {
+        type: DataTypes.INTEGER, // Or STRING/UUID etc.
+        // autoIncrement: true, // Only if INTEGER
+        primaryKey: true,
+         allowNull: false // Ensure IDs are always provided or generated
     },
-    {
-        timestamps : true,
-        
-    }
-);
+    name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true // Usually faculty names should be unique
+    },
+    // Assuming password is required for login as per your auth controller
+    password: {
+         type: DataTypes.STRING,
+         allowNull: false // Required for login
+     }
+    // Add other fields like department, email, etc. if needed
+}, {
+    tableName: 'faculties',
+    timestamps: false // Or true if you want timestamps
+});
 
+// Removed the .associate method
 
-const syncFacultyTable = async () =>{
-  try {
-    await Faculty.sync();
-    console.log('Faculty table is connected successfully');
-  } catch (error) {
-    console.log('Error in creating Faculty table ', error);
-  }
-}
-
-syncFacultyTable();
 export default Faculty;

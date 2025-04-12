@@ -1,79 +1,80 @@
 // Backend/Controllers/courseController.js
-import Course from '../Models/courseModel.js';
+import Course from '../Models/courseModel.js'; // Direct import
+import facultyCourse from '../Models/facultyCoursesModel.js'; // Needed for check before delete
+import sequelize from '../Configuration/dbConnect.js'; // For transaction maybe
 
-// Add a new course (Admin only)
+// Add a new base course
 export const addCourse = async (req, res) => {
     try {
-        // Admin check is done by middleware now
         const { id, course_name, credits } = req.body;
-        if (!id || !course_name || credits === undefined || credits === null) { // Check credits properly
-             return res.status(400).json({ success: false, message: "Please provide id, course_name, and credits" });
+        if (!id || !course_name || !credits) {
+            return res.status(400).json({ success: false, message: 'Missing required course fields.' });
         }
-         const parsedCredits = parseInt(credits, 10);
-         if (isNaN(parsedCredits) || parsedCredits < 0) {
-              return res.status(400).json({ success: false, message: "Invalid credits value" });
-         }
+        const courseIdUpper = id.toUpperCase();
 
-        // Check if course ID already exists
-        const existingCourse = await Course.findOne({ where: { id } });
-        if (existingCourse) {
-            return res.status(409).json({ success: false, message: `Course with ID ${id} already exists.` });
+        // Consider transaction if needed
+        const existingCourse = await Course.findByPk(courseIdUpper);
+        if(existingCourse){
+            return res.status(409).json({ success: false, message: `Course with ID ${courseIdUpper} already exists.` });
         }
 
-        const newCourse = await Course.create({ id, course_name, credits: parsedCredits });
-        console.log("Course added:", newCourse.id);
-        res.status(201).json({ success: true, message: "Course added successfully", data: newCourse }); // Use 201 Created
+        const newCourse = await Course.create({
+            id: courseIdUpper,
+            course_name,
+            credits: parseInt(credits) // Ensure credits is number
+        });
+        res.status(201).json({ success: true, message: 'Base course added successfully!', data: newCourse });
     } catch (error) {
-        console.error("Error in inserting course record:", error);
-        res.status(500).json({ success: false, message: "Server Error" });
+        console.error("Error adding base course:", error);
+         if (error.name === 'SequelizeValidationError') {
+             return res.status(400).json({ success: false, message: "Validation Error", errors: error.errors.map(e => e.message) });
+         }
+         if (error.name === 'SequelizeUniqueConstraintError') {
+              return res.status(409).json({ success: false, message: `Course with ID ${req.body.id?.toUpperCase()} already exists.` });
+         }
+        res.status(500).json({ success: false, message: 'Server Error adding course.', error: error.message });
     }
 };
 
-// Get ALL available courses (Any logged-in user)
-export const getAllCourses = async (req, res) => { // Renamed from getCourse
+// Get all base courses
+export const getAllCourses = async (req, res) => {
     try {
-        // Authentication check is done by middleware
-        const courses = await Course.findAll({
-            order: [['course_name', 'ASC']] // Optional: order courses by name
-        });
-
-        if (!courses || courses.length === 0) {
-            console.log("getAllCourses: No courses found in DB");
-           // Return empty array, not an error, if DB is empty
-           return res.status(200).json({ success: true, data: [] });
-        }
-        console.log(`getAllCourses: Fetched ${courses.length} courses`);
+        const courses = await Course.findAll({ order: [['course_name', 'ASC']] });
         res.status(200).json({ success: true, data: courses });
     } catch (error) {
-        console.error("Error in fetching course records:", error);
-        res.status(500).json({ success: false, message: "Server Error" });
+        console.error("Error fetching all courses:", error);
+        res.status(500).json({ success: false, message: 'Server Error fetching courses.', error: error.message });
     }
 };
 
-// Delete a course (Admin only)
+// Delete a base course
 export const deleteCourse = async (req, res) => {
+    const { id } = req.params;
+    const transaction = await sequelize.transaction(); // Use transaction
     try {
-         // Admin check is done by middleware now
-        const { id } = req.params; // Get ID from URL parameter
-
-        if (!id) {
-            return res.status(400).json({ success: false, message: "Course ID is required" });
-        }
-
-        const course = await Course.findOne({ where: { id: id } });
-
+        const course = await Course.findByPk(id.toUpperCase(), { transaction });
         if (!course) {
-            return res.status(404).json({ success: false, message: "Course not found" });
+             await transaction.rollback();
+            return res.status(404).json({ success: false, message: 'Base course not found.' });
         }
 
-        await Course.destroy({ where: { id: id } });
-        console.log("Course deleted:", id);
-        res.status(200).json({ success: true, message: "Course deleted successfully" });
-        // Or use 204 No Content status
-        // res.status(204).send();
+        // IMPORTANT Check: Prevent deletion if offerings exist
+        const offeringCount = await facultyCourse.count({
+            where: { course_id: id.toUpperCase() },
+            transaction
+        });
 
+        if (offeringCount > 0) {
+            await transaction.rollback();
+            return res.status(409).json({ success: false, message: `Cannot delete course ${id.toUpperCase()}: ${offeringCount} offering(s) exist.` });
+        }
+
+        await course.destroy({ transaction });
+        await transaction.commit();
+        res.status(200).json({ success: true, message: `Base course ${id.toUpperCase()} deleted successfully.` });
     } catch (error) {
-        console.error("Error deleting course:", error);
-        res.status(500).json({ success: false, message: "Server Error" });
+        await transaction.rollback();
+        console.error(`Error deleting base course ${id}:`, error);
+        res.status(500).json({ success: false, message: 'Server Error deleting course.', error: error.message });
     }
 };

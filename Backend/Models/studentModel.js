@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 import sequelize  from '../Configuration/dbConnect.js';
 const Student = sequelize.define(
-    "Student",
+    "Students",
     {
         id :{
             type : DataTypes.INTEGER,
@@ -45,15 +45,6 @@ const Student = sequelize.define(
     }
 )
 
-const syncStudentTable = async ()=>{
-     try {
-        await Student.sync();
-        console.log("Student table created successfully");
-     } catch (error) {
-        console.log("Error in creating student table " , error );
-     }
-}
 
-syncStudentTable();
 
 export default Student;
