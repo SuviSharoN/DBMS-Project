@@ -1,12 +1,12 @@
 import { DataTypes } from "sequelize";
-import sequelize  from '../Config/dbConnect.js';
+import sequelize  from '../Configuration/dbConnect.js';
 const Student = sequelize.define(
     "Student",
     {
         id :{
             type : DataTypes.INTEGER,
             primaryKey : true,
-            autoIncreament : true
+            
         },
         name:{
             type: DataTypes.STRING,
@@ -32,7 +32,7 @@ const Student = sequelize.define(
             allowNull: false,
         },
         category: {
-            type: DataTypes.ENUM("BC", "MBC", "SC", "ST"),
+            type: DataTypes.ENUM("BC", "MBC", "SC", "ST" , "OC"),
             allowNull: false,
         },
         reservation: {

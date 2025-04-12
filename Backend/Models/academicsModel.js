@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import  sequelize  from "../Config/dbConnect.js";
+import  sequelize  from "../Configuration/dbConnect.js";
 import Student from "./studentModel.js";
 
 const Academics = sequelize.define(
@@ -25,7 +25,7 @@ const Academics = sequelize.define(
             this.setDataValue('department', value.trim());
         }
      },
-     year_of_study : {
+     year : {
         type : DataTypes.ENUM('1','2','3','4'),
         allowNull : false
      },

@@ -1,81 +1,117 @@
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import axios from "axios";
+  // src/Components/Dashboard.jsx
+  import { useParams, useNavigate } from "react-router-dom";
+  import { useEffect, useState } from "react";
+  import axios from "axios";
 
-function Dashboard() {
-  const { id } = useParams();
-  const [student, setStudent] = useState(null);
-  const [loading, setLoading] = useState(true);
+  function Dashboard() {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [student, setStudent] = useState(null);
+    const [academics, setAcademics] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-  const iphone = "/iphone.jpg"; // Image from the public folder
+    const profileImage = "/annaunivlogo.jpg"; // Image from public folder
 
-  useEffect(() => {
-    const fetchStudent = async () => {
-      try {
-        const res = await axios.get(`http://localhost:5000/api/students/dashboard/${id}`);
-        setStudent(res.data.data);
-      } catch (error) {
-        console.error("Error fetching student:", error);
-      } finally {
-        setLoading(false);
+    useEffect(() => {
+      const fetchStudent = async () => {
+        try {
+          console.log("HEYYYYY"+id);
+          const res = await axios.get(`http://localhost:5000/api/students/dashboard/${id}`);
+          
+          setStudent(res.data.data.student);
+          setAcademics(res.data.data.academic);
+        } catch (error) {
+          console.error("Error fetching student:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchStudent();
+    }, [id]);
+
+    if (loading) return <div className="p-6 text-center text-xl">Loading...</div>;
+    if (!student) return <div className="p-6 text-center text-xl text-red-600">Student not found.</div>;
+
+    const studentInfo = [
+      { label: "Name", value: student.name },
+      { label: "Reg No", value: student.id },
+      { label: "Year", value: academics[0]?.year },
+      { label: "Email", value: student.email },
+      { label: "Department", value: academics[0]?.department },
+    ];
+
+    const dashboardOptions = [
+      { label: "Circulars", path: "/dashboard/circular" },
+      { label: "Attendance", path: "/dashboard/attendance" },
+      { label: "Fee Payments", path: "/dashboard/fee" },
+      { label: "Timetable", path: "/dashboard/timetable" },
+      { label: "Course Enrollment", path: "/dashboard/course-enroll" },
+      { label: "Contact Info", path: "/dashboard/contact" },
+    ];
+
+    const handleSignOut = () => {
+      if (window.confirm("Are you sure you want to sign out?")) {
+        navigate("/login");
       }
     };
 
-    fetchStudent();
-  }, [id]);
-
-  if (loading) return <div className="p-6 text-center text-xl">Loading...</div>;
-  if (!student) return <div className="p-6 text-center text-xl text-red-600">Student not found.</div>;
-
-  const studentInfo = [
-    { label: "Name", value: student.name },
-    { label: "Reg No", value: student.id },
-    { label: "Year", value: student.academic_details?.year || "-" },
-    { label: "Email", value: student.email },
-    { label: "Department", value: student.academic_details?.department || "-" },
-  ];
-
-  return (
-    <div className="relative flex flex-col items-center py-12 min-h-screen bg-gray-100">
-      {/* Sign Out Button (Top Right) */}
-      <div className="absolute top-6 right-6">
-        <button className="bg-red-500 text-white py-3 px-6 rounded-lg text-lg font-semibold shadow-md hover:scale-105 transition-all duration-300">
-          Sign Out
-        </button>
-      </div>
-
-      <h2 className="text-4xl font-bold text-gray-800 mb-10">Student Dashboard</h2>
-
-      <div className="flex flex-col md:flex-row bg-white shadow-xl border border-gray-300 p-8 rounded-xl w-full max-w-5xl">
-        {/* Left Section */}
-        <div className="w-full md:w-1/2 flex flex-col items-center p-6 border-r border-gray-300">
-          <div className="w-56 h-56 rounded-full overflow-hidden border-4 border-gray-400 shadow-lg">
-            <img src={iphone} alt="Student Profile" className="w-full h-full object-cover" />
-          </div>
-          <div className="text-left w-full mt-6">
-            <h3 className="text-2xl font-semibold text-gray-700 mb-4">Student Information</h3>
-            {studentInfo.map((item, index) => (
-              <p key={index} className="text-lg text-gray-600">
-                <span className="font-medium text-gray-900">{item.label}:</span> {item.value}
-              </p>
-            ))}
-          </div>
+    return (
+      <div className="p-4 md:p-6 lg:p-8 relative min-h-screen bg-gray-50">
+        {/* Sign Out Button */}
+        <div className="absolute top-6 right-6">
+          <button
+            onClick={handleSignOut}
+            className="bg-red-500 text-white py-3 px-6 rounded-lg text-lg font-semibold shadow-md hover:bg-red-600 hover:scale-105 transition-all duration-300"
+          >
+            Sign Out
+          </button>
         </div>
 
-        {/* Right Section */}
-        <div className="w-full md:w-1/2 flex flex-wrap justify-center items-center gap-6 p-6">
-          {["Circular", "Contact", "Fee", "Attendance", "Time Table", "Course Enroll"].map((label, index) => (
-            <button
-              key={index}
-              className="w-48 bg-gradient-to-r from-blue-400 to-blue-600 text-white py-3 px-6 rounded-lg text-lg font-semibold shadow-md hover:scale-105 transition-all duration-300"
-            >
-              {label}
-            </button>
-          ))}
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-8 text-center md:text-left">
+          Welcome, {student.name}!
+        </h2>
+
+        {/* Grid layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+          {/* Profile Card */}
+          <div className="lg:col-span-1 bg-gradient-to-br from-white to-gray-50 shadow-xl rounded-xl p-6 border border-gray-200 flex flex-col items-center">
+            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-cyan-200 shadow-lg mb-5 flex-shrink-0 ring-2 ring-cyan-400 ring-offset-2">
+              <img src={profileImage} alt="Student Profile" className="w-full h-full object-cover" />
+            </div>
+
+            <div className="text-center w-full">
+              <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-1">{student.name}</h3>
+              <p className="text-sm text-cyan-700 font-medium mb-3">{academics[0]?.department}</p>
+              <div className="text-left w-full space-y-2 text-sm md:text-base border-t pt-4 mt-4">
+                {studentInfo.map((info, index) => (
+                  <p key={index} className="text-gray-600">
+                    <span className="font-semibold text-gray-700 w-24 inline-block">{info.label}:</span>{" "}
+                    <span className="break-words">{info.value}</span>
+                  </p>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Action Buttons */}
+          <div className="lg:col-span-2 bg-white shadow-xl rounded-xl p-6 border border-gray-200">
+            <h3 className="text-xl md:text-2xl font-semibold text-gray-700 mb-6 border-b pb-3">Quick Actions</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-6">
+              {dashboardOptions.map((option, index) => (
+                <button
+                  key={index}
+                  onClick={() => navigate(option.path)}
+                  className="p-4 md:p-5 rounded-lg text-center bg-gradient-to-r from-cyan-50 to-blue-100 text-blue-800 font-semibold shadow-md border border-blue-200 hover:shadow-lg hover:scale-[1.03] hover:from-cyan-100 hover:to-blue-200 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-400"
+                >
+                  <span className="text-sm md:text-base">{option.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-export default Dashboard;
+  export default Dashboard;

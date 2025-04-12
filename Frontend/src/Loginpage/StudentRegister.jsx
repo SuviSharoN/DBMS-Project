@@ -16,12 +16,12 @@ function RegisterPage() {
     guardian_name: "",
     department: "",
     year: "",
-    joiningDate: "",
+    joiningyear: "",
     reservation: "",
     reservationType: "",
     password: "", // Add password to formData
   });
-
+ 
   const navigate = useNavigate(); // Initialize useNavigate
 
   const handleChange = (e) => {
@@ -253,6 +253,62 @@ function RegisterPage() {
               </select>
             </div>
           )}
+
+          {/* Department */}
+          <div>
+            <label className="block text-gray-700 font-medium">Department</label>
+            <select
+              name="department"
+              value={formData.department}
+              onChange={handleChange}
+              className="w-full px-4 py-2 mt-1 border rounded-md focus:ring focus:ring-blue-300 outline-none"
+              required
+            >
+              <option value="">Select</option>
+              <option value="CSE">Computer Science and Engineering</option>
+              <option value="ECE">Electronics and Communication Engineering</option>
+              <option value="EEE">Electrical and Electronics Engineering</option>
+              <option value="MECH">Mechanical Engineering</option>
+              <option value="CIVIL">Civil Engineering</option>
+            </select>
+          </div>
+
+          {/* Year */}
+          <div>
+            <label className="block text-gray-700 font-medium">Year</label>
+            <select
+              name="year"
+              value={formData.year}
+              onChange={handleChange}
+              className="w-full px-4 py-2 mt-1 border rounded-md focus:ring focus:ring-blue-300 outline-none"
+              required
+            >
+              <option value="">Select</option>
+              <option value="1">1st Year</option>
+              <option value="2">2nd Year</option>
+              <option value="3">3rd Year</option>
+              <option value="4">4th Year</option>
+            </select>
+          </div>
+
+          {/* Year of Admission */}
+          <div>
+            <label className="block text-gray-700 font-medium">Year of Admission</label>
+            <select
+              name="joiningyear"
+              value={formData.joiningyear}
+              onChange={handleChange}
+              className="w-full px-4 py-2 mt-1 border rounded-md focus:ring focus:ring-blue-300 outline-none"
+              required
+            >
+              <option value="">Select</option>
+              <option value="2021">2021</option>
+              <option value="2022">2022</option>
+              <option value="2023">2023</option>
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+            </select>
+          </div>
 
           {/* Password */}
           <div>

@@ -6,41 +6,41 @@ function Interface(){
         const [sidebarOpen, setSidebarOpen] = useState(false);
         const [logoutSidebarOpen, setLogoutSidebarOpen] = useState(false);
       
-        const feeDetails = [
-          {
-            description: "Semester 3",
-            amount: "₹50,000",
-            lateFee: "₹500",
-            reAdmFee: "₹1,000",
-            penalty: "₹0",
-            totalAmt: "₹51,500",
-            paidOn: "2024-01-10",
-            status: "Paid",
-            receipt: "Download",
-          },
-          {
-            description: "Semester 2",
-            amount: "₹5,000",
-            lateFee: "₹200",
-            reAdmFee: "₹0",
-            penalty: "₹0",
-            totalAmt: "₹5,200",
-            paidOn: "2024-02-05",
-            status: "Paid",
-            receipt: "Download",
-          },
-          {
-            description: "Semester 1",
-            amount: "₹40,000",
-            lateFee: "₹1,000",
-            reAdmFee: "₹2,000",
-            penalty: "₹500",
-            totalAmt: "₹43,500",
-            paidOn: "Pending",
-            status: "Pending",
-            receipt: "-",
-          },
-        ];
+        // const feeDetails = [
+        //   {
+        //     description: "Semester 3",
+        //     amount: "₹50,000",
+        //     lateFee: "₹500",
+        //     reAdmFee: "₹1,000",
+        //     penalty: "₹0",
+        //     totalAmt: "₹51,500",
+        //     paidOn: "2024-01-10",
+        //     status: "Paid",
+        //     receipt: "Download",
+        //   },
+        //   {
+        //     description: "Semester 2",
+        //     amount: "₹5,000",
+        //     lateFee: "₹200",
+        //     reAdmFee: "₹0",
+        //     penalty: "₹0",
+        //     totalAmt: "₹5,200",
+        //     paidOn: "2024-02-05",
+        //     status: "Paid",
+        //     receipt: "Download",
+        //   },
+        //   {
+        //     description: "Semester 1",
+        //     amount: "₹40,000",
+        //     lateFee: "₹1,000",
+        //     reAdmFee: "₹2,000",
+        //     penalty: "₹500",
+        //     totalAmt: "₹43,500",
+        //     paidOn: "Pending",
+        //     status: "Pending",
+        //     receipt: "-",
+        //   },
+        // ];
       
         return (
           <>
