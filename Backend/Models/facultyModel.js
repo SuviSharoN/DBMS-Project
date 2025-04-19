@@ -12,7 +12,7 @@ const Faculty = sequelize.define("Faculty", {
     name: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true // Usually faculty names should be unique
+        //unique: true // Usually faculty names should be unique
     },
     // Assuming password is required for login as per your auth controller
     password: {

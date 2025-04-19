@@ -14,7 +14,7 @@ const Admin = sequelize.define(
         },
         email : {
             type: DataTypes.STRING,
-            unique : true,
+            //unique : true,
             allowNull : false ,
             validate : {
                 isEmail : true

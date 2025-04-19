@@ -36,12 +36,12 @@ function FacultyDashboard() {
   ];
 
   const dashboardOptions = [
-    { label: "Circulars", path: "/dashboard/circular" },
-    { label: "Attendance", path: "/dashboard/attendance" },
-    { label: "Fee Payments", path: "/dashboard/fee" },
-    { label: "Timetable", path: "/dashboard/timetable" },
-    // { label: "Course Enrollment", path: "/dashboard/course-enroll" },
-    { label: "Contact Info", path: "/dashboard/contact" },
+    { label: "Circulars", path: "/faculty_dashboard/circular" },
+    { label: "Attendance", path: "/faculty_dashboard/attendance" },
+    { label: "Fee Payments", path: "/faculty_dashboard/fee" },
+    { label: "Timetable", path: "/faculty_dashboard/timetable" },
+    //  { label: "Course Enrollment", path: "/faculty_dashboard/course-enroll" },
+    { label: "Contact Info", path: "/faculty_dashboard/contact" },
   ];
 
   const handleSignOut = () => {

@@ -3,6 +3,7 @@ import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 const ProtectedRoute = ({ allowedRoles }) => {
+  console.log(allowedRoles);
   const token = localStorage.getItem('authToken');
   const userRole = localStorage.getItem('userRole');
   const location = useLocation();

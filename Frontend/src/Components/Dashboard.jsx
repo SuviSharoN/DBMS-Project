@@ -43,10 +43,10 @@
 
     const dashboardOptions = [
       { label: "Circulars", path: "/dashboard/circular" },
-      { label: "Attendance", path: "/students/attendance" },
+      { label: "Attendance", path: "/dashboard/attendance" },
       { label: "Fee Payments", path: "/dashboard/fee" },
       { label: "Timetable", path: "/dashboard/timetable" },
-      { label: "Course Enrollment", path: "/students/course-enroll" },
+      { label: "Course Enrollment", path: "/dashboard/course-enroll" },
       { label: "Contact Info", path: "/dashboard/contact" },
     ];
 

@@ -41,3 +41,17 @@ export const adminMiddleware = (req, res, next) => {
         return res.status(403).json({ success: false, message: 'Forbidden: Admin access required' });
     }
 };
+
+// Place this in your middleware file or directly in the routes file if preferred
+
+export const isFaculty = (req, res, next) => {
+    // This middleware MUST run AFTER authMiddleware has set req.user
+    if (req.user && req.user.role === 'Faculty') { // IMPORTANT: Ensure 'faculty' matches the role string in your JWT payload EXACTLY
+        console.log("Role Check: isFaculty - Access granted for user:", req.user.id);
+        next(); // User is faculty, allow access
+    } else {
+        console.log("Role Check: isFaculty - Forbidden access attempt by user:", req.user?.id, "Role:", req.user?.role);
+        // Send 403 Forbidden if not faculty or req.user isn't set properly
+        return res.status(403).json({ success: false, message: 'Forbidden: Faculty access required.' });
+    }
+};

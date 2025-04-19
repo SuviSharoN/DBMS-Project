@@ -42,13 +42,13 @@ function AdminDashboard() {
 
   // *** ONLY CHANGE IS HERE ***
   const dashboardOptions = [
-    { label: "Circulars", path: "/dashboard/circular" },
-    { label: "Attendance", path: "/dashboard/attendance" },
-    { label: "Fee Payments", path: "/dashboard/fee" },
-    { label: "Timetable", path: "/dashboard/timetable" },
+    { label: "Circulars", path: "/admin/circular" },
+    { label: "Attendance", path: "/admin/attendance" },
+    { label: "Fee Payments", path: "/admin/fee" },
+    { label: "Timetable", path: "/admin/timetable" },
     // Corrected the path for Admin access
     { label: "Course Enrollment", path: "/admin/course-enroll" },
-    { label: "Contact Info", path: "/dashboard/contact" },
+    { label: "Contact Info", path: "/admin/contact" },
   ];
   // *** END OF CHANGE ***x
 

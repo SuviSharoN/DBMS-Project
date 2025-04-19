@@ -4,7 +4,6 @@ import Login from "./Loginpage/Login";
 import Dashboard from "./Components/Dashboard"; // Student Dashboard? Rename for clarity if needed
 import Feepayment from "./Pages/Fee/Feepayment";
 import Circular from "./Pages/Circular/Circular";
-import Attendance from "./Pages/Attendance/Attendance";
 import RegisterPage from "./Loginpage/StudentRegister.jsx";
 import RegisterOptions from "./Loginpage/RegisterOptions";
 import FacultyRegister from "./Loginpage/Facultyregister";
@@ -12,7 +11,9 @@ import AdminRegister from "./Loginpage/AdminRegister";
 import FacultyDashboard from "./Components/FacultyDashboard";
 import AdminDashboard from "./Components/AdminDashboard";
 import TimeTable from "./Pages/Timetable/Timetable.jsx";
-
+import StudentAttendance from "./Pages/Attendance/StudentAttendance.jsx";
+import FacultyAttendance from "./Pages/Attendance/FacultyAttendance.jsx";
+//import FacultyAttendance from "./Pages/Attendance/FacultyAttendance.js";
 // --- Import BOTH Enrollment Components ---
 import AdminCourseManagement from "./Pages/Enrollment/AdminCourseManagement.jsx"; // Admin's version
 import StudentEnrollment from "./Pages/Enrollment/studentEnrollment.jsx"; // Student's version
@@ -35,19 +36,22 @@ function App() {
           {/* Use :id matching the logged-in user's ID if needed */}
           <Route path="/dashboard/:id" element={<Dashboard />} /> {/* Example: Generic dashboard */}
           {/* Consider nesting under /dashboard/ or keeping separate */}
-          <Route path="/students/attendance" element={<Attendance />} />
-          <Route path="/contact" element={<Contact />} /> {/* Assuming Contact needs login */}
-          <Route path="/circular" element={<Circular />} />
-          <Route path="/fee" element={<Feepayment />} />
-          <Route path="/timetable" element={<TimeTable />} />
+          <Route path="/dashboard/attendance" element={<StudentAttendance />} />
+          <Route path="/dashboard/contact" element={<Contact />} /> {/* Assuming Contact needs login */}
+          <Route path="/dashboard/circular" element={<Circular />} />
+          <Route path="/dashboard/fee" element={<Feepayment />} />
+          <Route path="/dashboard/timetable" element={<TimeTable />} />
+          
           {/* Assign StudentEnrollment to the student's enrollment path */}
-          <Route path="students/course-enroll" element={<StudentEnrollment />} />
+          <Route path="/dashboard/course-enroll" element={<StudentEnrollment />} />
         </Route>
 
         {/* --- Faculty Routes --- */}
         <Route element={<ProtectedRoute allowedRoles={['Faculty']} />}>
            {/* Use :id matching the logged-in user's ID if needed */}
-          <Route path="/faculty/dashboard/:id" element={<FacultyDashboard />} />
+          <Route path="/faculty_dashboard/:id" element={<FacultyDashboard />} />
+          <Route path = "/faculty_dashboard/attendance" element = {<FacultyAttendance/>}/>
+          {/* <Route path = "/faculty_dashboard/course-enroll" element = {<Fac/>}/> */}
           {/* Add other faculty-specific routes here */}
           {/* Example: <Route path="/faculty/my-courses" element={<FacultyCourses />} /> */}
         </Route>
