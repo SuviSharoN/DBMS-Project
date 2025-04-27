@@ -3,6 +3,17 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
+export const isStudent = (req, res, next) => {
+    // This middleware MUST run AFTER authMiddleware has set req.user
+    if (req.user && req.user.role === 'Student') { // Check for 'Student' role
+        console.log("Role Check: isStudent - Access granted for user:", req.user.id);
+        next(); // User is a student, allow access
+    } else {
+        console.log("Role Check: isStudent - Forbidden access attempt by user:", req.user?.id, "Role:", req.user?.role);
+        // Send 403 Forbidden if not a student or req.user isn't set properly
+        return res.status(403).json({ success: false, message: 'Forbidden: Student access required.' });
+    }
+};
 export const authMiddleware = (req, res, next) => {
     // Get token from header (Authorization: Bearer TOKEN)
     const authHeader = req.headers.authorization;

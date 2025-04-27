@@ -260,12 +260,12 @@ function FacultyAttendance() { // Removed facultyId prop assumption
 
     // --- Render ---
     return (
-        <div className="max-w-5xl mx-auto py-10 px-4">
-            <h2 className="text-3xl font-bold text-center mb-8 text-cyan-700">Faculty Attendance Panel</h2>
+        <div className="max-w-5xl mx-auto py-10 px-4 bg-gray-900 text-gray-200">
+            <h2 className="text-3xl font-bold text-center mb-8 text-cyan-400">Faculty Attendance Panel</h2>
 
             {/* Display Message Area */}
             {message && (
-                <div className={`mb-4 text-center text-sm px-4 py-2 rounded-md ${message.toLowerCase().includes('success') ? 'text-green-700 bg-green-100' : 'text-red-600 bg-red-100'}`}>
+                <div className={`mb-4 text-center text-sm px-4 py-2 rounded-md ${message.toLowerCase().includes('success') ? 'text-green-400 bg-green-800' : 'text-red-400 bg-red-800'}`}>
                     {message}
                 </div>
             )}
@@ -273,21 +273,20 @@ function FacultyAttendance() { // Removed facultyId prop assumption
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
                 {/* Course Selection */}
                 <div className="w-full md:w-auto">
-                    <label htmlFor="course-select" className="block text-sm font-medium mb-1 text-gray-600">Select Course:</label>
+                    <label htmlFor="course-select" className="block text-sm font-medium mb-1 text-gray-400">Select Course:</label>
                     {isLoadingCourses ? (
-                         <div className="text-gray-500">Loading courses...</div>
+                        <div className="text-gray-500">Loading courses...</div>
                     ) : Array.isArray(facultyCourses) && facultyCourses.length > 0 ? (
                         <select
                             id="course-select"
                             value={selectedCourseId}
                             onChange={(e) => setSelectedCourseId(e.target.value)}
-                            className="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent text-base"
+                            className="w-full md:w-64 px-4 py-2 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-gray-800 text-gray-200"
                         >
                             <option value="">-- Choose a Course --</option>
                             {facultyCourses.map(course => (
-                                // Ensure course object has 'id' and 'course_name'
                                 <option key={course.id} value={course.id}>
-                                    {course.course_name || course.name || `Course ID ${course.id}`} {/* Display name */}
+                                    {course.course_name || course.name || `Course ID ${course.id}`}
                                 </option>
                             ))}
                         </select>
@@ -298,46 +297,44 @@ function FacultyAttendance() { // Removed facultyId prop assumption
 
                 {/* Date Picker */}
                 <div className="w-full md:w-auto">
-                    <label htmlFor="date-select" className="block text-sm font-medium mb-1 text-gray-600">Select Date:</label>
+                    <label htmlFor="date-select" className="block text-sm font-medium mb-1 text-gray-400">Select Date:</label>
                     <input
                         type="date"
                         id="date-select"
                         value={selectedDate}
                         onChange={handleDateChange}
-                        className="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent text-base"
-                        max={new Date().toISOString().split("T")[0]} // Prevent selecting future dates
+                        className="w-full md:w-64 px-4 py-2 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-gray-800 text-gray-200"
+                        max={new Date().toISOString().split("T")[0]}
                     />
                 </div>
             </div>
 
             {/* Student List & Attendance Statuses */}
             {isLoadingStudents || isLoadingAttendance ? (
-                <div className="text-center text-gray-600 mt-6">Loading data...</div>
-            ) : selectedCourseId && enrolledStudents.length > 0 ? ( // Only show table if course selected and students exist
+                <div className="text-center text-gray-500 mt-6">Loading data...</div>
+            ) : selectedCourseId && enrolledStudents.length > 0 ? (
                 <div className="overflow-x-auto">
-                    <table className="min-w-full table-auto bg-white shadow-md rounded-xl overflow-hidden">
-                        <thead className="bg-cyan-50 border-b border-gray-200">
+                    <table className="min-w-full table-auto bg-gray-800 shadow-md rounded-xl overflow-hidden">
+                        <thead className="bg-gray-700 border-b border-gray-600">
                             <tr>
-                                <th className="text-left px-6 py-4 font-medium text-gray-700">Student Name</th>
-                                <th className="text-left px-6 py-4 font-medium text-gray-700">Status</th>
+                                <th className="text-left px-6 py-4 font-medium text-gray-300">Student Name</th>
+                                <th className="text-left px-6 py-4 font-medium text-gray-300">Status</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {/* Ensure enrolledStudents is an array */}
                             {Array.isArray(enrolledStudents) && enrolledStudents.map(student => {
-                                // Check if student object and id exist
                                 if (!student || student.id == null) {
                                     console.warn("Invalid student data found:", student);
-                                    return null; // Skip rendering invalid student
+                                    return null;
                                 }
                                 return (
-                                    <tr key={student.id} className="border-b border-gray-100 hover:bg-cyan-50">
-                                        <td className="px-6 py-3 text-gray-800">{student.name || `Student ID ${student.id}`}</td>
+                                    <tr key={student.id} className="border-b border-gray-700 hover:bg-gray-700">
+                                        <td className="px-6 py-3 text-gray-200">{student.name || `Student ID ${student.id}`}</td>
                                         <td className="px-6 py-3">
                                             <select
-                                                value={attendanceStatuses[student.id] || STATUS_OPTIONS[1]} // Default to 'Absent'
+                                                value={attendanceStatuses[student.id] || STATUS_OPTIONS[1]}
                                                 onChange={(e) => handleStatusChange(student.id, e.target.value)}
-                                                className="px-3 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent bg-white"
+                                                className="px-3 py-1.5 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-gray-700 text-gray-200"
                                             >
                                                 {STATUS_OPTIONS.map(status => (
                                                     <option key={status} value={status}>
@@ -351,14 +348,14 @@ function FacultyAttendance() { // Removed facultyId prop assumption
                             })}
                         </tbody>
                     </table>
-                     {/* Save Button */}
+                    {/* Save Button */}
                     <div className="mt-8 text-center">
                         <button
                             onClick={handleSaveChanges}
                             disabled={isSaving}
                             className={`inline-block px-6 py-2.5 text-white font-semibold rounded-md transition-all ${
                                 isSaving
-                                    ? 'bg-gray-400 cursor-not-allowed'
+                                    ? 'bg-gray-600 cursor-not-allowed'
                                     : 'bg-cyan-600 hover:bg-cyan-700'
                             }`}
                         >
@@ -367,9 +364,8 @@ function FacultyAttendance() { // Removed facultyId prop assumption
                     </div>
                 </div>
             ) : (
-                selectedCourseId && <div className="text-center text-gray-600 mt-6">No students enrolled in this course, or failed to load students.</div>
+                selectedCourseId && <div className="text-center text-gray-500 mt-6">No students enrolled in this course, or failed to load students.</div>
             )}
-            {/* Hide Save button if no students */}
         </div>
     );
 }

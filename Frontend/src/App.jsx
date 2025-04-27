@@ -16,7 +16,7 @@ import FacultyAttendance from "./Pages/Attendance/FacultyAttendance.jsx";
 //import FacultyAttendance from "./Pages/Attendance/FacultyAttendance.js";
 // --- Import BOTH Enrollment Components ---
 import AdminCourseManagement from "./Pages/Enrollment/AdminCourseManagement.jsx"; // Admin's version
-import StudentEnrollment from "./Pages/Enrollment/studentEnrollment.jsx"; // Student's version
+import StudentEnrollment from "./Pages/Enrollment/StudentEnrollment.jsx"; // Student's version
 
 import ProtectedRoute from "./Components/ProtectedRoute.jsx"; // Your protected route component
 

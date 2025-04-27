@@ -80,50 +80,63 @@ function StudentAttendance() {
     if (isLoading) return <div className="flex justify-center items-center h-40"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500"></div></div>;
 
     return (
-        <div className="container mx-auto p-4 md:p-6 max-w-5xl">
-            <h3 className="text-3xl md:text-4xl font-bold text-center mb-8 text-gray-800 tracking-tight">
+        <div className="container mx-auto p-4 md:p-6 max-w-5xl bg-gray-900 text-gray-200">
+            <h3 className="text-3xl md:text-4xl font-bold text-center mb-8 text-cyan-400 tracking-tight">
                 My Attendance Report
             </h3>
 
-            {error && <div className="mb-4 p-4 text-center text-red-700 bg-red-100 rounded-lg">{error}</div>}
+            {error && <div className="mb-4 p-4 text-center text-red-400 bg-red-800 rounded-lg">{error}</div>}
 
             {/* Overall Summary */}
-            <div className="bg-white p-5 rounded-xl shadow-lg mb-8 border border-gray-200 flex justify-end items-center gap-4">
+            <div className="bg-gray-800 p-5 rounded-xl shadow-lg mb-8 border border-gray-700 flex justify-end items-center gap-4">
                 <div className="text-center md:text-right w-full md:w-auto">
-                    <span className="block text-sm font-medium text-gray-600">Overall Average:</span>
+                    <span className="block text-sm font-medium text-gray-400">Overall Average:</span>
                     {overallAttendance !== null ? (
                         <span className={`text-3xl font-bold ${getTextColor(overallAttendance)}`}>
                             {overallAttendance}%
                         </span>
                     ) : (
-                         !error && <span className="text-xl font-semibold text-gray-500">-</span>
+                        !error && <span className="text-xl font-semibold text-gray-500">-</span>
                     )}
                     <p className="text-xs text-gray-500 mt-1">(Required: {ATTENDANCE_THRESHOLD}%)</p>
                 </div>
             </div>
 
             {/* Attendance List */}
-            <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg border border-gray-200">
-                <h4 className="text-xl font-semibold mb-5 text-gray-700 border-b pb-2">
+            <div className="bg-gray-800 p-4 md:p-6 rounded-xl shadow-lg border border-gray-700">
+                <h4 className="text-xl font-semibold mb-5 text-gray-300 border-b border-gray-600 pb-2">
                     Course Details
                 </h4>
                 {attendanceRecords.length > 0 ? (
                     <div className="space-y-4">
                         {attendanceRecords.map((record) => (
-                            <div key={record.facultyCourseId} className="border border-gray-200 rounded-lg p-4 flex flex-col sm:flex-row items-center gap-4 hover:shadow-md transition-shadow duration-200">
+                            <div
+                                key={record.facultyCourseId}
+                                className="border border-gray-700 rounded-lg p-4 flex flex-col sm:flex-row items-center gap-4 hover:shadow-md hover:shadow-cyan-500/50 transition-shadow duration-200 bg-gray-900"
+                            >
                                 {/* Course Name */}
                                 <div className="flex-grow w-full sm:w-auto text-center sm:text-left">
-                                    <p className="font-semibold text-gray-800 text-base">{record.courseName} ({record.courseId})</p>
-                                    <p className="text-xs text-gray-500">Present: {record.presentClasses} / Total: {record.totalClasses}</p>
+                                    <p className="font-semibold text-gray-200 text-base">
+                                        {record.courseName} ({record.courseId})
+                                    </p>
+                                    <p className="text-xs text-gray-400">
+                                        Present: {record.presentClasses} / Total: {record.totalClasses}
+                                    </p>
                                 </div>
                                 {/* Attendance Percentage & Bar */}
                                 <div className="w-full sm:w-1/2 lg:w-1/3 flex items-center gap-3 flex-shrink-0">
-                                    <span className={`w-14 text-right font-bold text-lg ${getTextColor(record.percentage)}`}>
+                                    <span
+                                        className={`w-14 text-right font-bold text-lg ${getTextColor(
+                                            record.percentage
+                                        )}`}
+                                    >
                                         {record.percentage}%
                                     </span>
-                                    <div className="flex-grow bg-gray-200 rounded-full h-3 overflow-hidden">
+                                    <div className="flex-grow bg-gray-700 rounded-full h-3 overflow-hidden">
                                         <div
-                                            className={`h-full rounded-full transition-all duration-500 ease-out ${getAttendanceColor(record.percentage)}`}
+                                            className={`h-full rounded-full transition-all duration-500 ease-out ${getAttendanceColor(
+                                                record.percentage
+                                            )}`}
                                             style={{ width: `${record.percentage}%` }}
                                             title={`${record.percentage}% Attendance`}
                                         ></div>
@@ -133,7 +146,11 @@ function StudentAttendance() {
                         ))}
                     </div>
                 ) : (
-                    !error && <div className="text-center py-10 text-gray-500">No attendance data available.</div>
+                    !error && (
+                        <div className="text-center py-10 text-gray-500">
+                            No attendance data available.
+                        </div>
+                    )
                 )}
             </div>
         </div>

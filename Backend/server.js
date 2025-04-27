@@ -25,6 +25,8 @@ import adminRoutes from './Routes/adminRoutes.js';
 import authenroutes from './Routes/authenticationRoutes.js';
  import studentRoutes from './Routes/studentRoutes.js'; // Add if you have routes for managing students
 import attendanceRoutes from  './Routes/attendanceRoutes.js';
+import FeePayment from './Models/FeePaymentModel.js';
+import feeRoutes from './Routes/feeRoutes.js';
 dotenv.config();
 
 const app = express();
@@ -72,6 +74,9 @@ try {
     facultyCourse.hasMany(Attendance, { foreignKey: 'faculty_course_id' });
 
 
+    Student.hasMany(FeePayment, { foreignKey: 'student_id', sourceKey: 'id' });
+    FeePayment.belongsTo(Student, { foreignKey: 'student_id', targetKey: 'id' });
+
     console.log("Manual associations defined.");
 } catch (error) {
     console.error("Error defining manual associations:", error);
@@ -93,6 +98,7 @@ app.use('/api/offerings', offeringRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/attendance',attendanceRoutes);
+app.use('/api/fees', feeRoutes);
 
 // --- Server Start Function---
 const startServer = async () => {

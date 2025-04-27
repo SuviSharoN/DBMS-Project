@@ -1,9 +1,7 @@
 // Frontend/src/Loginpage/Login.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from 'axios'; // Import axios directly
-// Assuming you have styles or using Tailwind:
-// import './LoginStyles.css';
+import axios from 'axios';
 
 function Login() {
     const [id, setId] = useState("");
@@ -13,7 +11,7 @@ function Login() {
     const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
-    const BASE_URL = 'http://localhost:5000/api/auth'; // Define your base URL
+    const BASE_URL = 'http://localhost:5000/api/auth';
 
     const handleRegister = () => {
         navigate("/registeroptions");
@@ -31,17 +29,15 @@ function Login() {
         setLoading(true);
 
         try {
-            // Use axios directly with the full URL
             const response = await axios.post(`${BASE_URL}/login`, {
                 id,
                 password
             });
 
             if (response.data.success) {
-              console.log(response.data);
+                console.log(response.data);
                 const { token, role, userId } = response.data;
 
-                // Store user info in localStorage
                 localStorage.setItem('authToken', token);
                 localStorage.setItem('userRole', role);
                 localStorage.setItem('userId', userId);
@@ -49,13 +45,11 @@ function Login() {
 
                 alert(`Login successful! Welcome, ${userId}`);
 
-                // Navigate based on role
                 if (role === 'Student') navigate(`/dashboard/${userId}`);
                 else if (role === 'Faculty') navigate(`/faculty_dashboard/${userId}`);
                 else navigate(`/admin/dashboard/${userId}`);
 
             } else {
-                // This case might be less common if backend uses proper status codes
                 setError(response.data.message || "Invalid credentials!");
                 localStorage.clear();
             }
@@ -74,45 +68,53 @@ function Login() {
         }
     };
 
-    // --- JSX remains the same as previous Login.jsx version ---
-    // Use className for styling as needed
+    // --- JSX with "Aurora Borealis" Theme ---
     return (
-        <div className="flex justify-center items-center h-screen bg-gradient-to-r from-blue-500 to-cyan-400"> {/* Example styling */}
+        // Deep dark background with aurora-like gradient hues (adjust colors as desired)
+        <div className="flex justify-center items-center h-screen bg-gradient-to-br from-black via-indigo-950 to-teal-900">
              <form
                  onSubmit={handleLogin}
-                 className="bg-white/20 backdrop-blur-md p-10 rounded-2xl shadow-2xl w-96 text-center transform transition-transform duration-300 hover:scale-105" // Example styling
+                 // Frosted glass effect form with subtle border hinting at aurora colors
+                 className="bg-gray-900/60 backdrop-blur-md p-10 rounded-2xl shadow-2xl w-96 text-center transform transition-transform duration-300 hover:scale-[1.02] ring-1 ring-purple-400/30"
              >
-                 <h2 className="text-white text-3xl font-bold mb-6">Login</h2> {/* Example styling */}
-                 {error && <p className="text-red-500 text-lg mb-3">{error}</p>} {/* Example styling */}
+                 {/* Gradient text title reflecting aurora colors */}
+                 <h2 className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-teal-400 text-3xl font-bold mb-6">
+                    Login Portal
+                 </h2>
+                 {error && <p className="text-red-400 text-lg mb-3">{error}</p>}
 
-                 <div className="flex flex-col text-left mb-5"> {/* Example styling */}
-                     <label htmlFor="userId" className="text-white text-lg mb-2">User ID</label> {/* Example styling */}
+                 <div className="flex flex-col text-left mb-5">
+                    {/* Light, slightly tinted label */}
+                     <label htmlFor="userId" className="text-purple-200 text-lg mb-2">User ID</label>
                      <input
                          id="userId"
                          type="text"
                          placeholder="Enter your ID"
                          value={id}
                          onChange={(e) => setId(e.target.value)}
-                         className="p-3 bg-white/40 text-black rounded-lg outline-none text-lg" // Example styling
+                         // Dark input, subtle border, focus effect using aurora accent color
+                         className="p-3 bg-gray-800/70 text-white rounded-lg outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-teal-400 text-lg placeholder-gray-500 border border-transparent"
                          required
                      />
                  </div>
 
-                 <div className="flex flex-col text-left mb-4"> {/* Example styling */}
-                     <label htmlFor="password" className="text-white text-lg mb-2">Password</label> {/* Example styling */}
-                    <div className="relative"> {/* Wrapper for password visibility toggle */}
+                 <div className="flex flex-col text-left mb-4">
+                     <label htmlFor="password" className="text-purple-200 text-lg mb-2">Password</label>
+                    <div className="relative">
                         <input
                             id="password"
                             type={showPassword ? "text" : "password"}
                             placeholder="Enter your password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="p-3 bg-white/40 text-black rounded-lg outline-none text-lg w-full" // Example styling
+                            // Dark input, subtle border, focus effect using aurora accent color
+                            className="p-3 bg-gray-800/70 text-white rounded-lg outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-teal-400 text-lg w-full placeholder-gray-500 border border-transparent"
                             required
                         />
                          <button
                              type="button"
-                             className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-white hover:opacity-80" // Example styling
+                             // Adjusted show/hide text color for better contrast
+                             className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-gray-400 hover:text-teal-300 transition-colors duration-200"
                              onClick={() => setShowPassword(!showPassword)}
                          >
                              {showPassword ? "Hide" : "Show"}
@@ -122,19 +124,21 @@ function Login() {
 
                  <button
                      type="submit"
-                     className="bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 rounded-lg w-full text-xl font-semibold transition-transform duration-300 hover:scale-105 disabled:opacity-50" // Example styling
+                     // Primary button using aurora gradient colors
+                     className="bg-gradient-to-r from-purple-600 to-teal-500 hover:from-purple-700 hover:to-teal-600 text-white py-3 rounded-lg w-full text-xl font-semibold transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
                      disabled={loading}
                  >
-                     {loading ? 'Logging in...' : 'Login'}
+                     {loading ? 'Verifying...' : 'Access Portal'}
                  </button>
                  <br /><br />
                  <button
                      type="button"
-                     className="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-lg w-full text-xl font-semibold transition-transform duration-300 hover:scale-105 disabled:opacity-50" // Example styling for Register button
+                      // Secondary button - outline style using an aurora accent color
+                     className="bg-transparent border border-teal-400 text-teal-300 hover:bg-teal-400 hover:text-black py-3 rounded-lg w-full text-xl font-semibold transition-all duration-300 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed"
                      onClick={handleRegister}
                      disabled={loading}
                  >
-                     Register
+                     Create Account
                  </button>
              </form>
         </div>
