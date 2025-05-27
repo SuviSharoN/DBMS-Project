@@ -4,13 +4,27 @@ import React, { useState, useEffect, useMemo } from 'react';
 
 // --- Mock Data ---
 const MOCK_CIRCULARS = [
-    { id: 'circ-001', title: "Exam Timetable Released - April 2024", date: "2024-03-20", category: "Exams", issuedBy: "Exam Cell", attachmentUrl: "/files/exam_timetable_apr24.pdf" },
+    { id: 'circ-001', title: "Exam Timetable Released - April 2024", date: "2024-03-20", category: "Exams", issuedBy: "Exam Cell",  attachmentUrl: "/files/exam_timetable_apr24.pdf" },
     { id: 'circ-002', title: "Workshop on AI & ML Applications", date: "2024-03-15", category: "Events", issuedBy: "CSE Department", attachmentUrl: "/files/ai_ml_workshop.pdf" },
     { id: 'circ-003', title: "Holiday Notice - Tamil New Year", date: "2024-04-10", category: "Holiday", issuedBy: "Admin Office", attachmentUrl: "/files/holiday_notice_apr14.pdf" },
     { id: 'circ-004', title: "Techofest Circular - Event Schedule", date: "2024-03-06", category: "Festival", issuedBy: "Dean Office", attachmentUrl: "/files/techofest_schedule.pdf" },
     { id: 'circ-005', title: "Library Hour Changes During Exams", date: "2024-03-18", category: "General", issuedBy: "Library", attachmentUrl: null }, // No attachment example
-    { id: 'circ-006', title: "Guest Lecture on Cloud Security", date: "2024-04-05", category: "Events", issuedBy: "IT Department", attachmentUrl: "/files/guest_lecture_cloud.pdf" },
-    { id: 'circ-007', title: "Internal Assessment Schedule", date: "2024-03-25", category: "Exams", issuedBy: "Exam Cell", attachmentUrl: "/files/ia_schedule_mar24.pdf" },
+    { 
+        id: 'circ-006', 
+        title: "Guest Lecture on Cloud Security", 
+        date: "2024-04-05", 
+        category: "Events", 
+        issuedBy: "IT Department", 
+        attachmentUrl: "https://drive.google.com/uc?export=download&id=1piLI2NGzLnJP86hWX-Af1NxQTzsVC8rs" 
+    },
+    { 
+        id: 'circ-007', 
+        title: "Internal Assessment Schedule", 
+        date: "2024-03-25", 
+        category: "Exams", 
+        issuedBy: "Exam Cell", 
+        attachmentUrl: "https://drive.google.com/uc?export=download&id=1K2XpNhuKGEwKtphgv5cgb7guIUVFdx0h" 
+    },
 ];
 
 // --- Component ---
@@ -99,13 +113,19 @@ function Circular() {
   // --- Event Handlers ---
   const handleDownload = (url, title) => {
     if (!url) {
-      alert(`No attachment available for "${title}".`);
-      return;
+        alert(`No attachment available for "${title}".`);
+        return;
     }
-    console.log(`Downloading attachment for "${title}" from ${url}`);
-    alert(`Download functionality not implemented. Would download from: ${url}`);
-    // In a real app: window.open(url, '_blank'); or trigger API download
-  };
+
+    // Trigger the download
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = title; // Optional: Set a custom filename
+    link.target = '_blank'; // Open in a new tab
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
 
   // --- Render Logic ---
   if (isLoading) return <div className="flex justify-center items-center h-40"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500"></div></div>;

@@ -1,10 +1,10 @@
 import express from 'express';
-import { addEnrollment, getAllEnrollment } from '../Controllers/enrollmentController.js';
+import { createEnrollments } from '../Controllers/enrollmentController.js';
 import { authMiddleware } from '../MiddleWare/authMiddleWare.js';
 const router = express.Router();
 
-router.post('/' , authMiddleware,addEnrollment );
+router.post('/' , authMiddleware,createEnrollments );
 
-router.get('/' , getAllEnrollment);
+
 
 export default router;
