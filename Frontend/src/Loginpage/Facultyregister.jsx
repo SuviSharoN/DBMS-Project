@@ -1,211 +1,144 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; // Import useNavigate for navigation buttons
+import axios from "axios";
 
 function FacultyRegister() {
-  // State for form fields
   const [formData, setFormData] = useState({
-    fullName: "",
-    facultyId: "",
-    department: "",
-    email: "",
-    password: "",
-    confirmPassword: "", // Added for password confirmation
+    fullName: "", facultyId: "", department: "", email: "", password: "", confirmPassword: "",
   });
-
-  // State for password visibility
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  // State for messages and submission status
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
-  const navigate = useNavigate(); // Hook for navigation
-
-  // Generic handler for input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-    // Clear errors/success when user types again
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
     if (error) setError("");
-    // if (success) setSuccess(""); // Keep success message until next submit attempt
+    // Keep success message visible until next interaction maybe? Or clear here too.
+    // if (success) setSuccess("");
   };
 
-  // Handler for form submission
-  const handleSubmit = async (e) => { // Make async for potential API calls
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isSubmitting) return; // Prevent double submission
+    if (isSubmitting) return;
+    setError(""); setSuccess(""); setIsSubmitting(true);
+    const { password, confirmPassword } = formData;
 
-    setError("");
-    setSuccess("");
-    setIsSubmitting(true);
-
-    const { fullName, facultyId, department, email, password, confirmPassword } = formData;
-
-    // --- Basic Validation ---
-    if (!fullName || !facultyId || !department || !email || !password || !confirmPassword) {
-      setError("All fields are required.");
-      setIsSubmitting(false);
-      return;
-    }
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       setIsSubmitting(false);
       return;
     }
-    // Add more validation if needed (e.g., email format, password complexity)
 
-    // --- TODO: Replace with actual API call to backend ---
     console.log("Submitting Faculty Registration Data:", formData);
     try {
-      // Simulate API calll
       const modifiedFormData = {
-        ...formData,
-        id: formData.facultyId , 
-        name : formData.fullName , 
-        email : formData.email , 
-        department : formData.department,
-        password : formData.password , 
-
+        id: formData.facultyId, // Map frontend field to backend 'id'
+        name: formData.fullName, // Map frontend field to backend 'name'
+        department: formData.department,
+        email: formData.email,
+        password: formData.password,
       };
+      // Basic frontend validation before sending
+      if (!modifiedFormData.id || !modifiedFormData.name || !modifiedFormData.department || !modifiedFormData.email || !modifiedFormData.password) {
+         throw new Error("All fields are required.");
+      }
+
       const res = await axios.post("http://localhost:5000/api/faculty", modifiedFormData);
+      console.log(res.data);
       setSuccess("Faculty registration successful!");
-      // Clear form on success
-      setFormData({
-        fullName: "", facultyId: "", department: "", email: "", password: "", confirmPassword: ""
-      });
-      // No automatic navigation here as per previous request
-      console.log("Faculty added:", res.data);
+      setFormData({ fullName: "", facultyId: "", department: "", email: "", password: "", confirmPassword: "" });
       alert("Registration successful!");
-      const faculty_id = modifiedFormData.facultyId;
-      navigate(`/faculty_dashboard/${faculty_id}`);
+      navigate(`/faculty_dashboard/${modifiedFormData.id}`); // Use facultyId/id
+
     } catch (apiError) {
       console.error("API Error:", apiError);
-      setError(apiError.message || "Registration failed. Please try again.");
+      setError(apiError.response?.data?.message || apiError.message || "Registration failed. Please try again.");
     } finally {
-      setIsSubmitting(false); // Re-enable button
+      setIsSubmitting(false);
     }
-    // --- End of Placeholder ---
   };
 
   return (
-    // Using the styling from the provided RegisterPage example
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-cyan-400 py-10">
-      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md"> {/* Adjusted max-w slightly */}
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Faculty Registration</h2>
+    // Apply dark gradient background, centering, and padding
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-black via-indigo-950 to-teal-900 py-10 px-4">
+      {/* Apply frosted glass effect, padding, rounded corners, shadow, max-width, and ring */}
+      <div className="bg-gray-900/70 backdrop-blur-md p-8 md:p-10 rounded-2xl shadow-2xl w-full max-w-md ring-1 ring-purple-400/30">
+        {/* Gradient text title */}
+        <h2 className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-teal-400 text-3xl font-bold mb-8 text-center">
+          Faculty Registration
+        </h2>
 
-        {/* Display Error and Success Messages */}
-        {error && <p className="bg-red-100 text-red-700 p-3 rounded mb-4 text-center">{error}</p>}
-        {success && <p className="bg-green-100 text-green-700 p-3 rounded mb-4 text-center">{success}</p>}
+        {/* Display Error and Success Messages (Styled for dark theme) */}
+        {error && <p className="bg-red-900/50 border border-red-500/50 text-red-300 p-3 rounded mb-4 text-center text-sm">{error}</p>}
+        {success && <p className="bg-green-900/50 border border-green-500/50 text-green-300 p-3 rounded mb-4 text-center text-sm">{success}</p>}
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          {/* Full Name */}
-          <div>
-            <label className="block text-gray-700 font-medium">Full Name</label>
-            <input
-              type="text"
-              name="fullName" // Changed from 'name'
-              value={formData.fullName}
-              onChange={handleChange}
-              className="w-full px-4 py-2 mt-1 border rounded-md focus:ring focus:ring-blue-300 outline-none"
-              placeholder="Enter full name"
-              required
-              disabled={isSubmitting || !!success} // Disable on submit/success
-            />
-          </div>
+        <form className="space-y-5" onSubmit={handleSubmit}>
+          {/* Input Group Styling */}
+          {[
+            { label: "Full Name", name: "fullName", type: "text", placeholder: "Enter full name" },
+            { label: "Faculty ID", name: "facultyId", type: "text", placeholder: "Enter faculty ID" },
+            { label: "Department", name: "department", type: "text", placeholder: "Enter department" },
+            { label: "Email", name: "email", type: "email", placeholder: "Enter email address" },
+          ].map((field) => (
+            <div key={field.name}>
+              <label className="block text-indigo-200 text-sm font-medium mb-1">{field.label}</label>
+              <input
+                type={field.type}
+                name={field.name}
+                value={formData[field.name]}
+                onChange={handleChange}
+                className="w-full px-4 py-2 mt-1 bg-gray-800/70 text-white rounded-lg outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-teal-400 text-base placeholder-gray-500 border border-transparent shadow-sm"
+                placeholder={field.placeholder}
+                required
+                disabled={isSubmitting || !!success}
+              />
+            </div>
+          ))}
 
-          {/* Faculty ID */}
-          <div>
-            <label className="block text-gray-700 font-medium">Faculty ID</label>
-            <input
-              type="text"
-              name="facultyId" // Changed from 'regNo'
-              value={formData.facultyId}
-              onChange={handleChange}
-              className="w-full px-4 py-2 mt-1 border rounded-md focus:ring focus:ring-blue-300 outline-none"
-              placeholder="Enter faculty ID"
-              required
-              disabled={isSubmitting || !!success}
-            />
-          </div>
-
-          {/* Department */}
-          <div>
-            <label className="block text-gray-700 font-medium">Department</label>
-            <input // Can be changed to <select> if needed
-              type="text"
-              name="department"
-              value={formData.department}
-              onChange={handleChange}
-              className="w-full px-4 py-2 mt-1 border rounded-md focus:ring focus:ring-blue-300 outline-none"
-              placeholder="Enter department"
-              required
-              disabled={isSubmitting || !!success}
-            />
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="block text-gray-700 font-medium">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-4 py-2 mt-1 border rounded-md focus:ring focus:ring-blue-300 outline-none"
-              placeholder="Enter email address"
-              required
-              disabled={isSubmitting || !!success}
-            />
-          </div>
-
-          {/* Password */}
-          <div className="relative"> {/* Added relative positioning */}
-            <label className="block text-gray-700 font-medium">Password</label>
+          {/* Password Input */}
+          <div className="relative">
+            <label className="block text-indigo-200 text-sm font-medium mb-1">Password</label>
             <input
               type={showPassword ? "text" : "password"}
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full px-4 py-2 mt-1 border rounded-md focus:ring focus:ring-blue-300 outline-none pr-10" // Added padding-right
+              className="w-full px-4 py-2 mt-1 bg-gray-800/70 text-white rounded-lg outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-teal-400 text-base placeholder-gray-500 border border-transparent pr-10" // Added pr-10
               placeholder="Enter password"
               required
               disabled={isSubmitting || !!success}
             />
-            {/* Show/Hide Button */}
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 top-6 pr-3 flex items-center text-sm leading-5 text-gray-600 hover:text-gray-800 disabled:opacity-50" // Adjusted positioning
+              className="absolute inset-y-0 right-0 top-7 pr-3 flex items-center text-sm leading-5 text-gray-400 hover:text-teal-300 transition-colors duration-200 disabled:opacity-50" // Adjusted top
               disabled={isSubmitting || !!success}
             >
               {showPassword ? "Hide" : "Show"}
             </button>
           </div>
 
-          {/* Confirm Password */}
-          <div className="relative"> {/* Added relative positioning */}
-            <label className="block text-gray-700 font-medium">Confirm Password</label>
+          {/* Confirm Password Input */}
+          <div className="relative">
+            <label className="block text-indigo-200 text-sm font-medium mb-1">Confirm Password</label>
             <input
               type={showConfirmPassword ? "text" : "password"}
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="w-full px-4 py-2 mt-1 border rounded-md focus:ring focus:ring-blue-300 outline-none pr-10" // Added padding-right
+              className="w-full px-4 py-2 mt-1 bg-gray-800/70 text-white rounded-lg outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-teal-400 text-base placeholder-gray-500 border border-transparent pr-10" // Added pr-10
               placeholder="Confirm password"
               required
               disabled={isSubmitting || !!success}
             />
-             {/* Show/Hide Button */}
-            <button
+             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute inset-y-0 right-0 top-6 pr-3 flex items-center text-sm leading-5 text-gray-600 hover:text-gray-800 disabled:opacity-50" // Adjusted positioning
+              className="absolute inset-y-0 right-0 top-7 pr-3 flex items-center text-sm leading-5 text-gray-400 hover:text-teal-300 transition-colors duration-200 disabled:opacity-50" // Adjusted top
               disabled={isSubmitting || !!success}
             >
               {showConfirmPassword ? "Hide" : "Show"}
@@ -215,34 +148,20 @@ function FacultyRegister() {
           {/* Submit Button */}
           <button
             type="submit"
-            className={`w-full bg-blue-600 text-white font-semibold py-2 rounded-md hover:bg-blue-700 transition mt-6 ${isSubmitting || success ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`w-full bg-gradient-to-r from-purple-600 to-teal-500 hover:from-purple-700 hover:to-teal-600 text-white font-semibold py-2.5 text-lg rounded-lg transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg mt-8 ${isSubmitting || success ? 'opacity-60 cursor-not-allowed' : ''}`}
             disabled={isSubmitting || !!success}
           >
             {isSubmitting ? 'Registering...' : 'Register Faculty'}
           </button>
 
-           {/* Navigation Buttons (Optional) */}
-           <div className="text-center mt-4 space-x-4">
-             <button
-                type="button"
-                className="text-blue-600 hover:underline text-sm"
-                onClick={() => navigate("/login")}
-             >
-                Go to Login
-             </button>
-             <button
-                type="button"
-                className="text-blue-600 hover:underline text-sm"
-                onClick={() => navigate("/registeroptions")}
-             >
-                More Options
-             </button>
+           {/* Navigation Buttons */}
+           <div className="text-center mt-5 space-x-4">
+             <button type="button" className="text-teal-300 hover:text-teal-100 hover:underline text-sm transition-colors duration-200" onClick={() => navigate("/login")}> Go to Login </button>
+             <button type="button" className="text-teal-300 hover:text-teal-100 hover:underline text-sm transition-colors duration-200" onClick={() => navigate("/registeroptions")}> More Options </button>
            </div>
-
         </form>
       </div>
     </div>
   );
 }
-
 export default FacultyRegister;

@@ -1,362 +1,252 @@
 // src/Pages/Attendance/FacultyAttendance.jsx
 
-import React, { useEffect, useState, useCallback } from "react"; // Added useCallback
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
+import { TailSpin } from "react-loader-spinner"; // Import loader if needed
 
 const STATUS_OPTIONS = ["Present", "Absent", "Late", "Excused"];
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'; // Consistent API base
 
-// --- Helper function to get token directly ---
+// Helper function to get token directly
 const getAuthToken = () => localStorage.getItem('authToken');
 
-function FacultyAttendance() { // Removed facultyId prop assumption
+function FacultyAttendance() {
     const [facultyCourses, setFacultyCourses] = useState([]);
     const [selectedCourseId, setSelectedCourseId] = useState("");
     const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split("T")[0]);
     const [enrolledStudents, setEnrolledStudents] = useState([]);
     const [attendanceStatuses, setAttendanceStatuses] = useState({});
-    const [isLoadingCourses, setIsLoadingCourses] = useState(false); // Specific loading state
+    const [isLoadingCourses, setIsLoadingCourses] = useState(false);
     const [isLoadingStudents, setIsLoadingStudents] = useState(false);
     const [isLoadingAttendance, setIsLoadingAttendance] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [message, setMessage] = useState(null);
 
-    // --- Fetch faculty's courses ---
+    // --- Fetch faculty's courses (Keep Logic) ---
     const fetchCourses = useCallback(async () => {
-        setIsLoadingCourses(true); // Start loading courses
+        setIsLoadingCourses(true);
         setMessage(null);
-        setFacultyCourses([]); // Clear previous
-
-        const token = getAuthToken(); // Get token from localStorage
-
-        if (!token) {
-            console.log("Fetch courses skipped: No auth token found in localStorage.");
-            setMessage("Please log in to view courses.");
-            setIsLoadingCourses(false); // Stop loading
-            return; // Don't proceed without token
-        }
-
+        setFacultyCourses([]);
+        const token = getAuthToken();
+        if (!token) { setMessage("Please log in to view courses."); setIsLoadingCourses(false); return; }
         try {
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${token}` // Add token to header
-                }
-            };
-
-            const response = await axios.get(`/api/faculty/mycourses`, config);
-            console.log("Courses API Response:", response.data);
-
-            if (Array.isArray(response.data)) {
-                setFacultyCourses(response.data);
-            } else {
-                console.warn("Received non-array data for courses:", response.data);
-                setMessage("Could not load courses correctly.");
-                setFacultyCourses([]); // Ensure empty array
-            }
-
+            const config = { headers: { Authorization: `Bearer ${token}` } };
+            // Assuming this endpoint correctly returns the faculty's courses
+            const response = await axios.get(`${API_BASE_URL}/faculty/mycourses`, config);
+            if (Array.isArray(response.data)) { setFacultyCourses(response.data); }
+            else { setMessage("Could not load courses correctly."); setFacultyCourses([]); }
         } catch (error) {
-            console.error("Error fetching courses:", error.response?.data || error.message);
-             if (error.response?.status === 401) {
-                 setMessage("Unauthorized: Session may have expired. Please log out and log in again.");
-                 // Consider clearing localStorage here if token is definitively bad
-                 // localStorage.removeItem('authToken');
-                 // localStorage.removeItem('userRole');
-                 // localStorage.removeItem('userId');
-                 // window.location.href = '/login'; // Force redirect
-             } else if (error.response?.status === 403) {
-                  setMessage("Forbidden: You do not have permission.");
-             }
-             else {
-                 setMessage("Failed to fetch courses.");
-             }
-            setFacultyCourses([]); // Reset on error
-        } finally {
-            setIsLoadingCourses(false); // Stop loading courses
-        }
-    }, []); // No external dependencies needed for this specific fetch logic
+             console.error("Error fetching courses:", error.response?.data || error.message);
+             let errorMsg = "Failed to fetch courses.";
+             if (error.response?.status === 401 || error.response?.status === 403) { errorMsg = "Unauthorized or Forbidden."; /* Consider redirect */ }
+             setMessage(errorMsg);
+             setFacultyCourses([]);
+        } finally { setIsLoadingCourses(false); }
+    }, []);
 
-    // Run fetchCourses on component mount
+    useEffect(() => { fetchCourses(); }, [fetchCourses]);
+
+    // --- Fetch students when course changes (Keep Logic) ---
     useEffect(() => {
-        fetchCourses();
-    }, [fetchCourses]); // Depend on the memoized callback
-
-    // --- Fetch students when course changes ---
-    useEffect(() => {
-        if (!selectedCourseId) {
-            setEnrolledStudents([]); // Clear students if no course selected
-            return;
-        };
-
+        if (!selectedCourseId) { setEnrolledStudents([]); return; };
         const fetchStudents = async () => {
-            setIsLoadingStudents(true);
-            setMessage(null); // Clear previous messages
-            setEnrolledStudents([]); // Clear previous students
-            setAttendanceStatuses({}); // Clear previous statuses
-
-            const token = getAuthToken(); // Need token for this too
-            if (!token) {
-                setMessage("Authentication token missing. Please log in.");
-                setIsLoadingStudents(false);
-                return;
-            }
-
+            setIsLoadingStudents(true); setMessage(null); setEnrolledStudents([]); setAttendanceStatuses({});
+            const token = getAuthToken();
+            if (!token) { setMessage("Authentication token missing."); setIsLoadingStudents(false); return; }
             try {
                 const config = { headers: { Authorization: `Bearer ${token}` } };
-                // *** Verify this endpoint matches your backend ***
-                // It was '/api/attendance/faculty/course/:courseId/students' before
-                // Let's assume it might just be '/api/course/:courseId/students' now
-                const response = await axios.get(`/api/attendance/faculty/course/${selectedCourseId}/students`, config);
-
-                if (Array.isArray(response.data)) {
-                   setEnrolledStudents(response.data);
-                } else {
-                   console.warn("Received non-array data for students:", response.data);
-                   setMessage("Could not load students correctly.");
-                   setEnrolledStudents([]);
-                }
-
+                const response = await axios.get(`${API_BASE_URL}/attendance/faculty/course/${selectedCourseId}/students`, config);
+                if (Array.isArray(response.data)) { setEnrolledStudents(response.data); }
+                else { setMessage("Could not load students correctly."); setEnrolledStudents([]); }
             } catch (error) {
-                console.error("Error fetching students:", error.response?.data || error.message);
-                 if (error.response?.status === 401) {
-                    setMessage("Unauthorized fetching students. Please log in again.");
-                 } else if (error.response?.status === 403) {
-                     setMessage("Forbidden: Cannot access students for this course.");
-                 }
-                 else {
-                    setMessage("Failed to fetch students.");
-                 }
-                setEnrolledStudents([]);
-            } finally {
-                setIsLoadingStudents(false);
-            }
+                 console.error("Error fetching students:", error.response?.data || error.message);
+                 let errorMsg = "Failed to fetch students.";
+                 if (error.response?.status === 401 || error.response?.status === 403) { errorMsg = "Unauthorized or Forbidden fetching students."; }
+                 setMessage(errorMsg);
+                 setEnrolledStudents([]);
+            } finally { setIsLoadingStudents(false); }
         };
         fetchStudents();
-    }, [selectedCourseId]); // Re-run when selectedCourseId changes
+    }, [selectedCourseId]);
 
-    // --- Fetch attendance when course or date changes ---
+    // --- Fetch attendance when course or date changes (Keep Logic) ---
     useEffect(() => {
-        if (!selectedCourseId || !selectedDate) {
-             setAttendanceStatuses({}); // Clear statuses if no course/date
-             return;
-        }
-
+        if (!selectedCourseId || !selectedDate) { setAttendanceStatuses({}); return; }
         const fetchAttendance = async () => {
-            setIsLoadingAttendance(true);
-            setMessage(null);
-            setAttendanceStatuses({}); // Clear previous
-
+            setIsLoadingAttendance(true); setMessage(null); setAttendanceStatuses({});
             const token = getAuthToken();
-            if (!token) {
-                 setMessage("Authentication token missing. Please log in.");
-                 setIsLoadingAttendance(false);
-                 return;
-            }
-
+            if (!token) { setMessage("Authentication token missing."); setIsLoadingAttendance(false); return; }
             try {
                  const config = { headers: { Authorization: `Bearer ${token}` } };
-                 // *** Verify this endpoint matches your backend ***
-                 // It was '/api/attendance/faculty/course/:courseId/date/:date' before
-                 // Let's adjust based on the previous GET example
-                 const response = await axios.get(`/api/attendance/faculty/course/${selectedCourseId}/date/${selectedDate}`, config);
+                 const response = await axios.get(`${API_BASE_URL}/attendance/faculty/course/${selectedCourseId}/date/${selectedDate}`, config);
                 if (Array.isArray(response.data)) {
                    const attendanceMap = {};
-                   // Assuming response.data is like [{ student_id: X, status: 'Present' }, ...]
-                   response.data.forEach(entry => {
-                       // Make sure student_id exists in your backend response
-                       if (entry.student_id != null) {
-                           attendanceMap[entry.student_id] = entry.status;
-                       } else {
-                           console.warn("Attendance record missing student_id:", entry);
-                       }
-                   });
+                   response.data.forEach(entry => { if (entry.student_id != null) attendanceMap[entry.student_id] = entry.status; });
                    setAttendanceStatuses(attendanceMap);
-                } else {
-                   console.warn("Received non-array data for attendance:", response.data);
-                   setMessage("Could not load attendance records correctly.");
-                   setAttendanceStatuses({});
-                }
-
+                } else { setMessage("Could not load attendance records correctly."); setAttendanceStatuses({}); }
             } catch (error) {
                 console.error("Error fetching attendance:", error.response?.data || error.message);
-                if (error.response?.status === 401) {
-                   setMessage("Unauthorized fetching attendance. Please log in again.");
-                } else if (error.response?.status === 403) {
-                   setMessage("Forbidden: Cannot access attendance for this course/date.");
-                } else {
-                   setMessage("Failed to fetch attendance records.");
-                }
-                setAttendanceStatuses({});
-            } finally {
-                setIsLoadingAttendance(false);
-            }
+                 let errorMsg = "Failed to fetch attendance records.";
+                 if (error.response?.status === 401 || error.response?.status === 403) { errorMsg = "Unauthorized or Forbidden fetching attendance."; }
+                 setMessage(errorMsg);
+                 setAttendanceStatuses({});
+            } finally { setIsLoadingAttendance(false); }
         };
         fetchAttendance();
-    }, [selectedCourseId, selectedDate]); // Re-run when course or date changes
+    }, [selectedCourseId, selectedDate]);
 
-    // --- Handle status change locally ---
+    // --- Handle status change locally (Keep Logic) ---
     const handleStatusChange = (studentId, status) => {
-        setAttendanceStatuses(prev => ({
-            ...prev,
-            [studentId]: status,
-        }));
+        setAttendanceStatuses(prev => ({ ...prev, [studentId]: status }));
     };
 
-    // --- Save changes to backend ---
+    // --- Save changes to backend (Keep Logic) ---
     const handleSaveChanges = async () => {
-        setIsSaving(true);
-        setMessage(null); // Clear previous message
-
+        setIsSaving(true); setMessage(null);
         const token = getAuthToken();
-        if (!token) {
-            setMessage("Authentication error. Cannot save.");
-            setIsSaving(false);
-            return;
-        }
-
+        if (!token) { setMessage("Authentication error. Cannot save."); setIsSaving(false); return; }
         try {
-            // Ensure enrolledStudents contains 'id' for each student
             const attendanceData = enrolledStudents.map(student => ({
-                studentId: student.id, // Make sure student object has 'id'
-                // courseId is needed by backend controller
-                status: attendanceStatuses[student.id] || "Absent", // Default to Absent if not set
+                studentId: student.id,
+                status: attendanceStatuses[student.id] || "Absent", // Default if unset
             }));
-
-            // Prepare payload for the backend
-            const payload = {
-                 courseId: selectedCourseId, // Backend needs this
-                 date: selectedDate,         // Backend needs this
-                 attendanceData: attendanceData
-            }
-
+            const payload = { courseId: selectedCourseId, date: selectedDate, attendanceData: attendanceData };
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            // *** Verify this endpoint matches your backend ***
-            // It was '/api/attendance/faculty/mark' before
-            await axios.post("/api/attendance/mark", payload, config);
-
+            await axios.post(`${API_BASE_URL}/attendance/mark`, payload, config);
             setMessage("Attendance saved successfully.");
-            // Optionally refetch attendance to confirm, but success message might suffice
-            // fetchAttendance();
-
         } catch (error) {
-            console.error("Error saving attendance:", error.response?.data || error.message);
-             if (error.response?.status === 401) {
-                setMessage("Unauthorized: Session expired. Please log in again.");
-             } else if (error.response?.status === 403) {
-                 setMessage("Forbidden: You do not have permission to save attendance for this course.");
-             } else if (error.response?.status === 400) {
-                 setMessage(`Error saving: ${error.response.data.message || 'Invalid data.'}`);
-             }
-             else {
-                 setMessage("Failed to save attendance due to a server error.");
-             }
-        } finally {
-            setIsSaving(false);
-        }
+             console.error("Error saving attendance:", error.response?.data || error.message);
+             let errorMsg = "Failed to save attendance.";
+             if (error.response?.status === 401 || error.response?.status === 403) errorMsg = "Unauthorized or Forbidden.";
+             else if (error.response?.status === 400) errorMsg = `Error saving: ${error.response.data.message || 'Invalid data.'}`;
+             setMessage(errorMsg);
+        } finally { setIsSaving(false); }
     };
 
-    // --- Handle Date Input Change ---
-    const handleDateChange = (e) => {
-        setSelectedDate(e.target.value);
-    };
+    // --- Handle Date Input Change (Keep Logic) ---
+    const handleDateChange = (e) => { setSelectedDate(e.target.value); };
 
     // --- Render ---
     return (
-        <div className="max-w-5xl mx-auto py-10 px-4 bg-gray-900 text-gray-200">
-            <h2 className="text-3xl font-bold text-center mb-8 text-cyan-400">Faculty Attendance Panel</h2>
+        // Applied dark gradient background, consistent padding
+        <div className="container mx-auto py-10 px-4 min-h-screen bg-gradient-to-br from-black via-indigo-950 to-teal-900 text-gray-200">
+            {/* Gradient Title */}
+            <h2 className="text-3xl font-bold text-center mb-10 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-teal-400 tracking-tight">
+                Faculty Attendance Panel
+            </h2>
 
-            {/* Display Message Area */}
+            {/* Display Message Area - Styled for dark theme */}
             {message && (
-                <div className={`mb-4 text-center text-sm px-4 py-2 rounded-md ${message.toLowerCase().includes('success') ? 'text-green-400 bg-green-800' : 'text-red-400 bg-red-800'}`}>
+                <div className={`mb-6 text-center text-sm px-4 py-3 rounded-md border ${
+                    message.toLowerCase().includes('success')
+                    ? 'text-green-300 bg-green-900/50 border-green-500/50'
+                    : 'text-red-300 bg-red-900/50 border-red-500/50'
+                }`}>
                     {message}
                 </div>
             )}
 
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
+             {/* Controls Section - Frosted Glass Effect */}
+             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10 p-6 bg-gray-900/60 backdrop-blur-md rounded-2xl shadow-lg ring-1 ring-purple-400/30">
                 {/* Course Selection */}
-                <div className="w-full md:w-auto">
-                    <label htmlFor="course-select" className="block text-sm font-medium mb-1 text-gray-400">Select Course:</label>
+                <div className="w-full md:w-auto flex-1 md:flex-none">
+                    <label htmlFor="course-select" className="block text-sm font-medium mb-1 text-indigo-200">Select Course:</label>
                     {isLoadingCourses ? (
-                        <div className="text-gray-500">Loading courses...</div>
+                        <div className="text-gray-500 italic h-10 flex items-center">Loading courses...</div> // Placeholder height
                     ) : Array.isArray(facultyCourses) && facultyCourses.length > 0 ? (
+                         // Dark theme select styling
                         <select
                             id="course-select"
                             value={selectedCourseId}
                             onChange={(e) => setSelectedCourseId(e.target.value)}
-                            className="w-full md:w-64 px-4 py-2 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-gray-800 text-gray-200"
+                            className="w-full md:min-w-[250px] px-4 py-2 border-transparent rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-teal-400 bg-gray-800/70 text-gray-100 text-base"
                         >
                             <option value="">-- Choose a Course --</option>
                             {facultyCourses.map(course => (
                                 <option key={course.id} value={course.id}>
-                                    {course.course_name || course.name || `Course ID ${course.id}`}
+                                    {/* Ensure display value is correct */}
+                                    {course.course?.course_name || course.course_name || course.name || `Course ID ${course.course?.id || course.id}`}
                                 </option>
                             ))}
                         </select>
                     ) : (
-                        <div className="text-gray-500">No courses assigned or failed to load.</div>
+                        <div className="text-gray-500 italic h-10 flex items-center">No courses assigned.</div> // Placeholder height
                     )}
                 </div>
 
                 {/* Date Picker */}
                 <div className="w-full md:w-auto">
-                    <label htmlFor="date-select" className="block text-sm font-medium mb-1 text-gray-400">Select Date:</label>
+                    <label htmlFor="date-select" className="block text-sm font-medium mb-1 text-indigo-200">Select Date:</label>
+                     {/* Dark theme date input styling */}
                     <input
                         type="date"
                         id="date-select"
                         value={selectedDate}
                         onChange={handleDateChange}
-                        className="w-full md:w-64 px-4 py-2 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-gray-800 text-gray-200"
-                        max={new Date().toISOString().split("T")[0]}
+                        className="w-full md:min-w-[200px] px-4 py-2 border-transparent rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-teal-400 bg-gray-800/70 text-gray-100 text-base appearance-none" // Basic appearance reset
+                        max={new Date().toISOString().split("T")[0]} // Keep max date
                     />
                 </div>
             </div>
 
-            {/* Student List & Attendance Statuses */}
-            {isLoadingStudents || isLoadingAttendance ? (
-                <div className="text-center text-gray-500 mt-6">Loading data...</div>
-            ) : selectedCourseId && enrolledStudents.length > 0 ? (
-                <div className="overflow-x-auto">
-                    <table className="min-w-full table-auto bg-gray-800 shadow-md rounded-xl overflow-hidden">
-                        <thead className="bg-gray-700 border-b border-gray-600">
-                            <tr>
-                                <th className="text-left px-6 py-4 font-medium text-gray-300">Student Name</th>
-                                <th className="text-left px-6 py-4 font-medium text-gray-300">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {Array.isArray(enrolledStudents) && enrolledStudents.map(student => {
-                                if (!student || student.id == null) {
-                                    console.warn("Invalid student data found:", student);
-                                    return null;
-                                }
-                                return (
-                                    <tr key={student.id} className="border-b border-gray-700 hover:bg-gray-700">
-                                        <td className="px-6 py-3 text-gray-200">{student.name || `Student ID ${student.id}`}</td>
-                                        <td className="px-6 py-3">
-                                            <select
-                                                value={attendanceStatuses[student.id] || STATUS_OPTIONS[1]}
-                                                onChange={(e) => handleStatusChange(student.id, e.target.value)}
-                                                className="px-3 py-1.5 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-gray-700 text-gray-200"
-                                            >
-                                                {STATUS_OPTIONS.map(status => (
-                                                    <option key={status} value={status}>
-                                                        {status}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                    {/* Save Button */}
+            {/* Loading Indicator for Students/Attendance */}
+             {(isLoadingStudents || isLoadingAttendance) && (
+                 <div className="flex justify-center items-center h-40">
+                     <TailSpin color="#4FD1C5" height={40} width={40} />
+                     <span className="ml-3 text-gray-400">Loading student data...</span>
+                 </div>
+             )}
+
+
+            {/* Student List & Attendance Statuses - Only show if NOT loading and students exist */}
+            {!isLoadingStudents && !isLoadingAttendance && selectedCourseId && enrolledStudents.length > 0 ? (
+                // Frosted glass container for the table
+                <div className="bg-gray-900/60 backdrop-blur-md shadow-xl rounded-2xl p-4 md:p-6 ring-1 ring-purple-400/30 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full table-fixed"> {/* Use table-fixed for better column control */}
+                            <thead className="border-b border-gray-700">
+                                <tr>
+                                    {/* Adjusted padding and text alignment */}
+                                    <th className="w-3/5 px-4 py-3 text-left text-xs font-medium text-indigo-200 uppercase tracking-wider">Student Name</th>
+                                    <th className="w-2/5 px-4 py-3 text-left text-xs font-medium text-indigo-200 uppercase tracking-wider">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-700/50">
+                                {Array.isArray(enrolledStudents) && enrolledStudents.map(student => {
+                                    if (!student || student.id == null) return null; // Skip invalid student data
+                                    return (
+                                        <tr key={student.id} className="hover:bg-gray-800/50 transition-colors duration-150">
+                                            {/* Adjusted padding */}
+                                            <td className="px-4 py-3 text-gray-100 whitespace-nowrap">{student.name || `Student ID ${student.id}`}</td>
+                                            <td className="px-4 py-3">
+                                                {/* Dark theme select */}
+                                                <select
+                                                    value={attendanceStatuses[student.id] || STATUS_OPTIONS[1]} // Default 'Absent'
+                                                    onChange={(e) => handleStatusChange(student.id, e.target.value)}
+                                                    className="px-3 py-1.5 border-transparent rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-cyan-500 bg-gray-700/80 text-gray-100 text-sm appearance-none" // Adjusted appearance
+                                                >
+                                                    {STATUS_OPTIONS.map(status => (
+                                                        <option key={status} value={status}>
+                                                            {status}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                     {/* Save Button - Themed */}
                     <div className="mt-8 text-center">
                         <button
                             onClick={handleSaveChanges}
-                            disabled={isSaving}
-                            className={`inline-block px-6 py-2.5 text-white font-semibold rounded-md transition-all ${
+                            disabled={isSaving || isLoadingCourses || isLoadingStudents || isLoadingAttendance} // Disable if any loading/saving
+                            className={`inline-block px-8 py-2.5 text-white text-base font-semibold rounded-lg transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed ${
                                 isSaving
-                                    ? 'bg-gray-600 cursor-not-allowed'
-                                    : 'bg-cyan-600 hover:bg-cyan-700'
+                                    ? 'bg-gray-600' // Saving state background
+                                    : 'bg-gradient-to-r from-purple-600 to-teal-500 hover:from-purple-700 hover:to-teal-600 hover:scale-105' // Normal state gradient
                             }`}
                         >
                             {isSaving ? 'Saving...' : 'Save Attendance'}
@@ -364,8 +254,14 @@ function FacultyAttendance() { // Removed facultyId prop assumption
                     </div>
                 </div>
             ) : (
-                selectedCourseId && <div className="text-center text-gray-500 mt-6">No students enrolled in this course, or failed to load students.</div>
+                // Message when no students or course not selected (and not loading)
+                !isLoadingStudents && !isLoadingAttendance && selectedCourseId &&
+                <div className="text-center text-gray-500 mt-10 p-6 bg-gray-800/50 rounded-lg">Select a course and date to view students, or no students are enrolled.</div>
             )}
+             {/* Placeholder message if no course is selected */}
+             {!selectedCourseId && !isLoadingCourses && (
+                 <div className="text-center text-gray-500 mt-10 p-6 bg-gray-800/50 rounded-lg">Please select a course from the dropdown above.</div>
+             )}
         </div>
     );
 }

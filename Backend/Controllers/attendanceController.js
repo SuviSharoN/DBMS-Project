@@ -3,14 +3,14 @@
 import Attendance from '../Models/attendanceModel.js'; // Use the date-based model
 import Enrollment from '../Models/enrollmentModel.js';
 import Student from '../Models/studentModel.js';
-import facultyCourse from '../Models/facultyCoursesModel.js';
+import FacultyCourse from '../Models/facultyCoursesModel.js';
 import Course from '../Models/courseModel.js';
 import Faculty from '../Models/facultyModel.js';
 // No sequelize import needed unless using explicit transactions somewhere else
 
 // Helper Function
 async function verifyFacultyCourseAccess(facultyId, courseId) {
-    const offering = await facultyCourse.findOne({
+    const offering = await FacultyCourse.findOne({
         where: { faculty_id: facultyId, course_id: courseId },
         attributes: ['id']
     });
@@ -24,7 +24,7 @@ export const getStudentAttendanceSummary = async (req, res) => {
         const enrollments = await Enrollment.findAll({
             where: { student_id: studentId },
             include: [{
-                model: facultyCourse, required: true,
+                model: FacultyCourse, required: true,
                 include: [{ model: Course, required: true }]
             }]
         });
@@ -33,8 +33,8 @@ export const getStudentAttendanceSummary = async (req, res) => {
 
         const summary = [];
         for (const enrollment of enrollments) {
-            const facultyCourseId = enrollment.facultyCourse.id;
-            const courseDetails = enrollment.facultyCourse.Course;
+            const facultyCourseId = enrollment.FacultyCourse.id;
+            const courseDetails = enrollment.FacultyCourse.Course;
 
             // COUNT records for this student in this offering
             const totalClasses = await Attendance.count({

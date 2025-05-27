@@ -1,5 +1,4 @@
-// Backend/Controllers/facultyCourseController.js
-import facultyCourse from '../Models/facultyCoursesModel.js'; // Direct import
+import FacultyCourse from '../Models/facultyCoursesModel.js'; // Direct import
 import Course from '../Models/courseModel.js';
 import Faculty from '../Models/facultyModel.js';
 import sequelize from '../Configuration/dbConnect.js';
@@ -29,7 +28,7 @@ export const addFacultyCourses = async (req, res) => {
         }
 
         // Check if link already exists
-        const existingLink = await facultyCourse.findOne({
+        const existingLink = await FacultyCourse.findOne({
             where: { faculty_id: faculty_id, course_id: courseIdUpper },
             transaction
         });
@@ -39,7 +38,7 @@ export const addFacultyCourses = async (req, res) => {
         }
 
 
-        const newFacultyCourse = await facultyCourse.create({
+        const newFacultyCourse = await FacultyCourse.create({
             faculty_id,
             course_id: courseIdUpper
         }, { transaction });

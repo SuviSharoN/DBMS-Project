@@ -53,6 +53,10 @@ function App() {
           <Route path = "/faculty_dashboard/attendance" element = {<FacultyAttendance/>}/>
           {/* <Route path = "/faculty_dashboard/course-enroll" element = {<Fac/>}/> */}
           {/* Add other faculty-specific routes here */}
+          <Route path="/faculty_dashboard/contact" element={<Contact />} /> {/* Assuming Contact needs login */}
+          <Route path="/faculty_dashboard/circular" element={<Circular />} />
+          <Route path="/faculty_dashboard/fee" element={<Feepayment />} />
+          <Route path="/faculty_dashboard/timetable" element={<TimeTable />} />
           {/* Example: <Route path="/faculty/my-courses" element={<FacultyCourses />} /> */}
         </Route>
 
@@ -63,6 +67,11 @@ function App() {
           {/* Assign AdminCourseManagement to the admin's course management path */}
           <Route path="/admin/course-enroll" element={<AdminCourseManagement />} />
           {/* Add other admin-specific routes here */}
+          <Route path="/admin/attendance" element={<StudentAttendance />} />
+          <Route path="/admin/contact" element={<Contact />} /> {/* Assuming Contact needs login */}
+          <Route path="/admin/circular" element={<Circular />} />
+          <Route path="/admin/fee" element={<Feepayment />} />
+          <Route path="/admin/timetable" element={<TimeTable />} />
           {/* Example: <Route path="/admin/manage-users" element={<ManageUsers />} /> */}
           {/* Example: <Route path="/admin/manage-faculty" element={<ManageFaculty />} /> */}
         </Route>
