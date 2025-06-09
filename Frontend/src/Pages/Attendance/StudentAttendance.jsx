@@ -1,4 +1,6 @@
-// src/Components/StudentAttendance.js
+// Student Attendance Component: Displays attendance records and statistics for enrolled courses
+// Features: Overall attendance calculation, course-wise attendance tracking, and visual indicators
+
 import React, { useState, useEffect, useMemo } from 'react';
 
 const ATTENDANCE_THRESHOLD = 75; // Define the threshold percentage

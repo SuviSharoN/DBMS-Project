@@ -1,4 +1,6 @@
-// src/Pages/RegisterPage.jsx (or your actual path)
+// Student Registration Component: Handles new student registration with comprehensive form validation
+// Features: Personal details, academic information, reservation status, and secure password handling
+
 import React, { useState } from "react"; // Added React import
 import { useNavigate } from "react-router-dom";
 import axios from "axios";

@@ -1,3 +1,6 @@
+// Student Dashboard Component: Displays student profile and quick access to academic features
+// Features: Profile display, attendance tracking, fee management, and course enrollment
+
 // src/Components/Dashboard.jsx
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";

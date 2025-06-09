@@ -1,3 +1,6 @@
+// Contact Component: Provides a contact form and contact information for the university
+// Features: Form submission with validation, contact details display, and submission status feedback
+
 // src/Components/Contact.js
 import React, { useState } from 'react'; // Import useState
 

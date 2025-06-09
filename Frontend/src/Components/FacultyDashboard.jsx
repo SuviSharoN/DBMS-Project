@@ -1,4 +1,6 @@
-// src/Components/FacultyDashboard.jsx (or your path)
+// Faculty Dashboard Component: Displays faculty profile and quick access to key features
+// Features: Profile display, attendance management, timetable access, and circular notifications
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -71,11 +73,9 @@ function FacultyDashboard() {
     { label: "Department", value: faculty.department },
   ];
 
-  // Update paths to include faculty ID if necessary for backend routes
   const dashboardOptions = [
     { label: "Circulars", path: `/faculty_dashboard/circular` },
-    { label: "Take Attendance", path: `/faculty_dashboard/attendance` }, // Changed label slightly
-    // { label: "View Fee Payments", path: `/faculty_dashboard/fee` }, // Changed label slightly
+    { label: "Take Attendance", path: `/faculty_dashboard/attendance` },
     { label: "Timetable", path: `/faculty_dashboard/timetable` },
     { label: "Contact Info", path: `/faculty_dashboard/contact` },
   ];

@@ -1,4 +1,6 @@
-// src/Components/AdminDashboard.jsx (or your path)
+// Admin Dashboard Component: Provides administrative control panel for university management
+// Features: System-wide access to circulars, attendance, fees, timetables, and course enrollment
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";

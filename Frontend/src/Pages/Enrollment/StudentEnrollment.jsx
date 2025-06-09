@@ -1,3 +1,6 @@
+// Student Enrollment Component: Handles course enrollment process for students
+// Features: Course selection, credit tracking, enrollment submission, and error handling
+
 // Frontend/src/Pages/Enrollment/StudentEnrollment.jsx
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';

@@ -1,3 +1,6 @@
+// Home Component: Main routing container for authenticated user pages
+// Features: Role-based route management and component rendering
+
 import { Route,Routes } from "react-router-dom";
 import Contact  from "../Contact/Contact.jsx";
 import Fee from "../Fee/Feepayment.jsx";

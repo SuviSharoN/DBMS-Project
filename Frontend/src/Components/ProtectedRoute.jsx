@@ -1,4 +1,6 @@
-// Frontend/src/Components/ProtectedRoute.jsx
+// Protected Route Component: Implements role-based access control for application routes
+// Features: Token validation, role verification, and unauthorized access redirection
+
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 

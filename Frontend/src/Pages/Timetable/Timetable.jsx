@@ -1,3 +1,6 @@
+// Timetable Component: Displays class schedules for different batches and departments
+// Features: Interactive batch selection, period-wise class display, and visual distinction for theory/lab classes
+
 // src/Components/TimeTable.jsx
 import React, { useState, useEffect } from 'react';
 

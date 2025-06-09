@@ -1,4 +1,6 @@
-// src/Components/RegisterOptions.jsx (or your actual path)
+// Registration Options Component: Provides role-based registration selection interface
+// Features: Student, Admin, and Faculty registration options with intuitive navigation
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 

@@ -1,3 +1,6 @@
+// Admin Registration Component: Handles administrative user registration with form validation
+// Features: Password confirmation, field validation, and secure API integration
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";

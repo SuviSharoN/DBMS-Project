@@ -1,4 +1,7 @@
 // Frontend/src/Loginpage/Login.jsx
+// Login Component: Handles user authentication with role-based access control
+// Features: Secure login, password visibility toggle, and role-specific dashboard redirection
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';

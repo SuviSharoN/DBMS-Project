@@ -1,3 +1,6 @@
+// Circular Component: Displays and manages university circulars with filtering and sorting capabilities
+// Features: Search by title, filter by category, sort by date/title, and download attachments
+
 // src/Components/Circular.js
 import React, { useState, useEffect, useMemo } from 'react';
 // Removed imports handled by Layout.js
