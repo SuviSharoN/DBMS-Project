@@ -1,10 +1,7 @@
 // Backend/Models/facultyCoursesModel.js
 import { DataTypes } from "sequelize";
 import sequelize from "../Configuration/dbConnect.js"; // Assuming db connection setup
-// Import associated models IF you define associations here and need them
-// import Faculty from './facultyModel.js'; // Example
-// import Course from './courseModel.js';   // Example
-// import Enrollment from './enrollmentModel.js'; // Needed for calculating enrolled count later
+
 
 // Use PascalCase for Model name convention
 const FacultyCourse = sequelize.define("FacultyCourse", {

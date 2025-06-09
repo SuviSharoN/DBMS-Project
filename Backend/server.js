@@ -1,4 +1,6 @@
-// Backend/server.js
+// Main Server Application: Express.js backend with Sequelize ORM integration
+// Features: Database associations, route handling, middleware setup, and server initialization
+
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -23,8 +25,8 @@ import offeringRoutes from './Routes/offeringRoutes.js';
 import enrollmentRoutes from './Routes/enrollmentRoutes.js';
 import adminRoutes from './Routes/adminRoutes.js';
 import authenroutes from './Routes/authenticationRoutes.js';
- import studentRoutes from './Routes/studentRoutes.js'; // Add if you have routes for managing students
-import attendanceRoutes from  './Routes/attendanceRoutes.js';
+import studentRoutes from './Routes/studentRoutes.js'; // Add if you have routes for managing students
+import attendanceRoutes from './Routes/attendanceRoutes.js';
 import FeePayment from './Models/FeePaymentModel.js';
 import feeRoutes from './Routes/feeRoutes.js';
 dotenv.config();

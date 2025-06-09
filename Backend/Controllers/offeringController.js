@@ -1,4 +1,5 @@
-// Backend/Controllers/offeringController.js
+// Handles course offering management and retrieval
+// Provides functionality to fetch all offerings with enrollment counts and delete offerings
 import facultyCourse from '../Models/facultyCoursesModel.js'; // The Offering model (FacultyCourse)
 import Course from '../Models/courseModel.js';
 import Faculty from '../Models/facultyModel.js';
@@ -102,5 +103,17 @@ export const getAllOfferings = async (req, res) => {
 
 // --- (deleteOffering function remains the same) ---
 export const deleteOffering = async (req, res) => {
-    // ... (delete logic) ...
+    try {
+        const offeringId = req.params.id;
+        const deleted = await facultyCourse.destroy({
+            where: { id: offeringId }
+        });
+        if (deleted) {
+            res.status(200).json({ success: true, message: 'Offering deleted successfully' });
+        } else {
+            res.status(404).json({ success: false, message: 'Offering not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to delete offering', error: error.message });
+    }
 };

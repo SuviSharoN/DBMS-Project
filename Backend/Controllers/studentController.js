@@ -1,11 +1,13 @@
-    import Student from '../Models/studentModel.js';
-    import Contact from '../Models/contactModel.js';
-    import Academics from '../Models/academicsModel.js';
-    import Credential from '../Models/credentialModel.js';
-    import Admin from '../Models/adminModel.js';
-    import bcrypt from 'bcryptjs';
-    
+// Handles student management operations including creation, authentication, and dashboard access
+// Provides role-based access control and student data management across multiple models
+import Student from '../Models/studentModel.js';
+import Contact from '../Models/contactModel.js';
+import Academics from '../Models/academicsModel.js';
+import Credential from '../Models/credentialModel.js';
+import Admin from '../Models/adminModel.js';
+import bcrypt from 'bcryptjs';
 import Faculty from '../Models/facultyModel.js';
+
 //bycrypting password
 const createCredential = async (id, password) => {
     try {

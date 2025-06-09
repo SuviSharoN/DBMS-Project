@@ -1,5 +1,8 @@
+// Handles admin user management and dashboard functionality
+// Provides CRUD operations for admin accounts with secure password handling
 import bcrypt from 'bcryptjs';
 import Admin from '../Models/adminModel.js';
+
 export const addAdmin = async (req , res) =>{
     try {
         const {id, name , email , password} = req.body;

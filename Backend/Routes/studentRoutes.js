@@ -1,3 +1,5 @@
+// Handles student management and dashboard endpoints
+// Provides routes for student CRUD, academics, and dashboard access
 import express from 'express';
 import { addStudent, getAcademics, getDashboard, getCredential } from '../Controllers/studentController.js';
 import { authMiddleware } from '../MiddleWare/authMiddleWare.js';
@@ -11,12 +13,10 @@ router.get('/all', authMiddleware, async (req, res) => {
         if (req.user.role !== 'Admin') {
             return res.status(403).json({ message: 'Only administrators can view all students' });
         }
-
         const students = await Student.findAll({
             attributes: ['id', 'name', 'email'],
             order: [['name', 'ASC']]
         });
-
         res.json(students);
     } catch (error) {
         console.error('Error fetching students:', error);

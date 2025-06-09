@@ -1,7 +1,10 @@
+// Handles faculty management and dashboard functionality
+// Provides CRUD operations and course management for faculty members
 import Faculty from '../Models/facultyModel.js';
 import Course from '../Models/courseModel.js';
 import facultyCourse from '../Models/facultyCoursesModel.js';
 import bcrypt from 'bcryptjs';
+
 export const addFaculty =  async (req , res) =>{
     try {
         const {id , name , email , department , password} = req.body;
@@ -28,6 +31,7 @@ export const getFaculty = async (req , res) =>{
         res.status(500).json({success : false , message : "Server Error"});
      }
 };
+
 export const getAllFaculties = async (req, res) => {
     try {
         const faculties = await Faculty.findAll({
@@ -40,6 +44,7 @@ export const getAllFaculties = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server Error fetching faculties.', error: error.message });
     }
 };
+
 export const getFacultyDashboard = async (req , res) =>{
     try {
         const {id} = req.params;
@@ -53,6 +58,7 @@ export const getFacultyDashboard = async (req , res) =>{
         res.status(500).json({ success: false, message: "Server Error" });
       }
 }
+
 export const getMyCourses = async (req, res) => {
     try {
         const facultyId = req.user.id; // Get faculty ID from auth middleware

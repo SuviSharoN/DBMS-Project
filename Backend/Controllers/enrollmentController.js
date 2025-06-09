@@ -1,4 +1,5 @@
-// Backend/Controllers/enrollmentController.js
+// Handles student course enrollment functionality
+// Provides enrollment creation with validation and duplicate checking
 import Enrollment from '../Models/enrollmentModel.js'; // Direct import
 import facultyCourse from '../Models/facultyCoursesModel.js';
 import sequelize from '../Configuration/dbConnect.js';

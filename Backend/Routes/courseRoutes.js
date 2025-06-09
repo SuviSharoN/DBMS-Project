@@ -1,4 +1,5 @@
-// Backend/Routes/courseRoutes.js
+// Handles course management endpoints (add, get, delete)
+// Uses authentication and admin middleware for protected actions
 import express from 'express';
 import { addCourse, getAllCourses, deleteCourse } from '../Controllers/courseController.js';
 // Import middleware

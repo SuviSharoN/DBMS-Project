@@ -1,3 +1,5 @@
+// Handles faculty-course assignment and management
+// Provides functionality to create and manage course offerings by faculty
 import FacultyCourse from '../Models/facultyCoursesModel.js'; // Direct import
 import Course from '../Models/courseModel.js';
 import Faculty from '../Models/facultyModel.js';

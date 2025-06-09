@@ -1,4 +1,5 @@
-// Backend/Controllers/courseController.js
+// Handles course management operations including creation, retrieval, and deletion
+// Implements validation and dependency checks to maintain data integrity
 import Course from '../Models/courseModel.js'; // Direct import
 import facultyCourse from '../Models/facultyCoursesModel.js'; // Needed for check before delete
 import sequelize from '../Configuration/dbConnect.js'; // For transaction maybe

@@ -1,4 +1,5 @@
-// Backend/Routes/feeRoutes.js
+// Handles fee payment, document generation, and admin fee management endpoints
+// Provides routes for students to view/pay fees and for admins to manage student fees
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
@@ -6,8 +7,8 @@ import PDFDocument from 'pdfkit'; // Import pdfkit
 import { fileURLToPath } from 'url';
 
 import FeePayment from '../Models/FeePaymentModel.js';
- // Needed to get student email (optional)
- import Student from '../Models/studentModel.js'; 
+// Needed to get student email (optional)
+import Student from '../Models/studentModel.js'; 
 // --- Calculate __dirname & Define Paths ---
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -73,8 +74,7 @@ router.get('/', authMiddleware,isStudent, async (req, res) => {
 // Get all fees for a student
 router.get('/student', authMiddleware, async (req, res) => {
     try {
-        // If user is admin, they can view any student's fees
-        // If user is student, they can only view their own fees
+        
         const whereClause = req.user.role === 'Admin' ? {} : { student_id: req.user.id };
         
         const fees = await FeePayment.findAll({

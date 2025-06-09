@@ -1,6 +1,6 @@
-// Backend/Controllers/attendanceController.js
-
-import Attendance from '../Models/attendanceModel.js'; // Use the date-based model
+// Handles attendance management for both students and faculty
+// Provides functionality for marking, updating, and retrieving attendance records
+import Attendance from '../Models/attendanceModel.js';
 import Enrollment from '../Models/enrollmentModel.js';
 import Student from '../Models/studentModel.js';
 import FacultyCourse from '../Models/facultyCoursesModel.js';

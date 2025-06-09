@@ -1,4 +1,5 @@
-// Backend/Controllers/authenticationController.js
+// Handles user authentication and JWT token generation
+// Provides role-based login validation across student, faculty, and admin users
 import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken'; // Import jwt
 import Credential from "../Models/credentialModel.js";
