@@ -1,15 +1,10 @@
 // src/Pages/Fee/Feepayment.jsx
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // Using axios for consistency, ensure it's installed
+import axios from 'axios';
 
-// --- REMOVED react-loader-spinner import ---
-// import { TailSpin } from 'react-loader-spinner';
-
-// Define the base URL for your backend API
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// Helper to format currency
 const formatCurrency = (value) => {
     const number = parseFloat(value);
     if (isNaN(number)) return value;
@@ -17,236 +12,412 @@ const formatCurrency = (value) => {
 };
 
 function Feepayment() {
-  const navigate = useNavigate();
-  const [feeDetails, setFeeDetails] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [sortOption, setSortOption] = useState('date-desc');
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [processingPayment, setProcessingPayment] = useState(null);
-  const [downloadingReceipt, setDownloadingReceipt] = useState(null);
-  const [actionError, setActionError] = useState(null);
+    const navigate = useNavigate();
+    const [fees, setFees] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [loadingStudents, setLoadingStudents] = useState(false);
+    const [error, setError] = useState(null);
+    const [processingPayment, setProcessingPayment] = useState(null);
+    const [downloadingDoc, setDownloadingDoc] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterStatus, setFilterStatus] = useState('all');
+    const [sortOption, setSortOption] = useState('date-desc');
+    const [addingSampleFees, setAddingSampleFees] = useState(false);
+    const [clearingFees, setClearingFees] = useState(false);
+    const [userRole, setUserRole] = useState(null);
+    const [selectedStudentId, setSelectedStudentId] = useState('');
+    const [students, setStudents] = useState([]);
 
-  // --- Fetch Fee Data (Memoized) ---
-  const fetchFees = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    setActionError(null);
-    const token = localStorage.getItem('authToken');
+    useEffect(() => {
+        // Get user role from localStorage
+        const role = localStorage.getItem('userRole');
+        setUserRole(role);
 
-    if (!token) {
-        console.warn("No auth token found. Redirecting to login.");
-        navigate('/login', { state: { message: "Authentication required. Please log in." }, replace: true });
-        setIsLoading(false);
-        return;
-    }
+        // If admin, fetch list of students
+        if (role === 'Admin') {
+            fetchStudents();
+        } else {
+            // If student, fetch their fees
+            fetchFees();
+        }
+    }, []);
 
-    try {
-        console.log(`Fetching fee details from: ${API_BASE_URL}/fees`);
-        const response = await axios.get(`${API_BASE_URL}/fees`, {
-            headers: { 'Authorization': `Bearer ${token}` },
+    // Effect to fetch fees when admin selects a student
+    useEffect(() => {
+        if (userRole === 'Admin' && selectedStudentId) {
+            setLoading(true);
+            fetchFees();
+        }
+    }, [selectedStudentId]);
+
+    const fetchFees = async () => {
+        try {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                navigate('/login');
+                return;
+            }
+
+            const response = await axios.get(`${API_BASE_URL}/fees/student`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            setFees(response.data);
+            setError(null);
+        } catch (err) {
+            setError('Failed to fetch fees. Please try again later.');
+            console.error('Error fetching fees:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchStudents = async () => {
+        setLoadingStudents(true);
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await axios.get(`${API_BASE_URL}/students/all`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            setStudents(response.data);
+            setError(null);
+        } catch (err) {
+            console.error('Error fetching students:', err);
+            setError('Failed to fetch students. Please try again.');
+        } finally {
+            setLoadingStudents(false);
+            setLoading(false); // Set loading to false after fetching students
+        }
+    };
+
+    const handleDownloadDocument = async (feeId) => {
+        setDownloadingDoc(feeId);
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await axios.get(`${API_BASE_URL}/fees/document/${feeId}`, {
+                headers: { 'Authorization': `Bearer ${token}` },
+                responseType: 'blob'
+            });
+
+            // Create a blob URL and trigger download
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `fee_document_${feeId}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (err) {
+            setError('Failed to download document. Please try again.');
+            console.error('Error downloading document:', err);
+        } finally {
+            setDownloadingDoc(null);
+        }
+    };
+
+    const handlePayNow = async (feeId) => {
+        if (!window.confirm('Are you sure you want to proceed with the payment?')) {
+            return;
+        }
+
+        setProcessingPayment(feeId);
+        try {
+            const token = localStorage.getItem('authToken');
+            await axios.post(`${API_BASE_URL}/fees/pay/${feeId}`, {}, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            // Refresh the fees list
+            await fetchFees();
+            alert('Payment successful!');
+        } catch (err) {
+            setError('Payment failed. Please try again.');
+            console.error('Error processing payment:', err);
+        } finally {
+            setProcessingPayment(null);
+        }
+    };
+
+    const clearFees = async () => {
+        if (!selectedStudentId) {
+            alert('Please select a student first');
+            return;
+        }
+
+        if (!window.confirm('This will delete all fees for the selected student. Continue?')) {
+            return;
+        }
+
+        setClearingFees(true);
+        try {
+            const token = localStorage.getItem('authToken');
+            await axios.delete(`${API_BASE_URL}/fees/clear-fees/${selectedStudentId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            // Refresh the fees list
+            await fetchFees();
+            alert('Fees cleared successfully!');
+        } catch (err) {
+            setError('Failed to clear fees. Please try again.');
+            console.error('Error clearing fees:', err);
+        } finally {
+            setClearingFees(false);
+        }
+    };
+
+    const addSampleFees = async () => {
+        if (!selectedStudentId) {
+            alert('Please select a student first');
+            return;
+        }
+
+        if (!window.confirm('This will add sample fee records. Continue?')) {
+            return;
+        }
+
+        setAddingSampleFees(true);
+        try {
+            const token = localStorage.getItem('authToken');
+            await axios.post(`${API_BASE_URL}/fees/add-sample-fees`, 
+                { studentId: selectedStudentId },
+                { headers: { 'Authorization': `Bearer ${token}` } }
+            );
+            
+            // Refresh the fees list
+            await fetchFees();
+            alert('Sample fees added successfully!');
+        } catch (err) {
+            const errorMessage = err.response?.data?.message || 'Failed to add sample fees. Please try again.';
+            setError(errorMessage);
+            console.error('Error adding sample fees:', err);
+        } finally {
+            setAddingSampleFees(false);
+        }
+    };
+
+    // Filter and sort fees
+    const displayFees = fees
+        .filter(fee => {
+            const matchesSearch = fee.description.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchesStatus = filterStatus === 'all' || fee.status === filterStatus;
+            return matchesSearch && matchesStatus;
+        })
+        .sort((a, b) => {
+            const [sortBy, sortDir] = sortOption.split('-');
+            const direction = sortDir === 'asc' ? 1 : -1;
+            
+            switch (sortBy) {
+                case 'date':
+                    return (new Date(a.dueDate) - new Date(b.dueDate)) * direction;
+                case 'amount':
+                    return (parseFloat(a.amount) - parseFloat(b.amount)) * direction;
+                default:
+                    return 0;
+            }
         });
 
-        console.log("Fetched fee details:", response.data);
-        // Assuming backend sends array directly
-        setFeeDetails(Array.isArray(response.data) ? response.data : []);
-
-    } catch (err) {
-        console.error("Failed to fetch fees:", err);
-        let errorMsg = "Error loading fee details.";
-         if (err.response) {
-            errorMsg = err.response.data?.message || `Failed to fetch fees: ${err.response.statusText} (${err.response.status})`;
-             if (err.response.status === 401 || err.response.status === 403) {
-                errorMsg = "Unauthorized or forbidden access to fee details.";
-                 console.warn(`Auth error (${err.response.status}) fetching fees. Clearing token.`);
-                 localStorage.removeItem('authToken');
-                 navigate('/login', { state: { message: "Session expired or invalid. Please log in again." }, replace: true });
-            }
-        } else if (err.request) { errorMsg = "Network Error: Could not reach server."; }
-        else { errorMsg = err.message; }
-        setError(errorMsg);
-        setFeeDetails([]);
-    } finally {
-        setIsLoading(false);
+    if (loading) {
+        return <div className="flex justify-center items-center h-screen">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>;
     }
-  }, [navigate]); // Added navigate dependency
 
-  useEffect(() => {
-    fetchFees();
-  }, [fetchFees]);
+    if (error) {
+        return <div className="text-red-500 text-center p-4">{error}</div>;
+    }
 
-  // --- Derive Displayed Fees (Memoized) ---
-  const displayFees = useMemo(() => {
-     if (!feeDetails) return [];
-     let filtered = [...feeDetails];
-     if (filterStatus !== 'all') { filtered = filtered.filter(fee => fee.status === filterStatus); }
-     const [sortBy, sortDir] = sortOption.split('-');
-     const direction = sortDir === 'asc' ? 1 : -1;
-     filtered.sort((a, b) => {
-       let comparison = 0;
-       const dateA = a.dueDate ? new Date(a.dueDate).getTime() : (direction === 1 ? Infinity : -Infinity);
-       const dateB = b.dueDate ? new Date(b.dueDate).getTime() : (direction === 1 ? Infinity : -Infinity);
-       switch (sortBy) {
-         case 'date': comparison = dateA - dateB; break;
-         case 'amount': comparison = parseFloat(a.totalAmt || 0) - parseFloat(b.totalAmt || 0); break;
-         case 'status': comparison = (a.status || '').localeCompare(b.status || ''); break;
-         case 'desc': default: comparison = (a.description || '').localeCompare(b.description || ''); break;
-       }
-       return comparison * direction || (dateB - dateA);
-     });
-     return filtered;
-  }, [feeDetails, filterStatus, sortOption]);
+    return (
+        <div className="container mx-auto p-4 md:p-6 max-w-6xl">
+            <h3 className="text-3xl md:text-4xl font-bold text-center mb-8 text-gray-800 tracking-tight">
+                Fee Payments
+            </h3>
 
-  // --- Calculate Pending Amount (Memoized) ---
-  const totalPendingAmount = useMemo(() => {
-    return displayFees.filter(fee => fee.status === 'Pending').reduce((sum, fee) => sum + parseFloat(fee.totalAmt || 0), 0);
-  }, [displayFees]);
-
-  // --- Event Handlers (Memoized) ---
-  const handlePayNow = useCallback(async (feeId, description, amount) => {
-      setActionError(null);
-      const token = localStorage.getItem('authToken');
-      if (!token) { alert("Authentication required."); navigate('/login'); return; }
-      if (!window.confirm(`Confirm payment of ${formatCurrency(amount)} for "${description}"?`)) return;
-
-      setProcessingPayment(feeId);
-      try {
-          const response = await axios.post(`${API_BASE_URL}/fees/pay/${feeId}`, {}, { headers: { 'Authorization': `Bearer ${token}` } });
-          if (!response.data?.success) throw new Error(response.data?.message || 'Payment failed');
-          alert(response.data.message || "Payment successful!");
-          fetchFees(); // Refresh list
-      } catch (err) {
-          const errorMsg = `Payment Error: ${err.response?.data?.message || err.message}`;
-          setActionError(errorMsg); alert(errorMsg);
-      } finally {
-          setProcessingPayment(null);
-      }
-  }, [fetchFees, navigate]);
-
-  const handleDownloadReceipt = useCallback(async (receiptFilename, description) => {
-       setActionError(null);
-       if (!receiptFilename) { alert(`No receipt for "${description}".`); return; }
-       const token = localStorage.getItem('authToken');
-       if (!token) { alert("Authentication required."); navigate('/login'); return; }
-
-       const downloadUrl = `${API_BASE_URL}/fees/receipt/${encodeURIComponent(receiptFilename)}`;
-       setDownloadingReceipt(receiptFilename);
-       try {
-           // Using fetch for blob handling
-           const response = await fetch(downloadUrl, { headers: { 'Authorization': `Bearer ${token}` } });
-           if (!response.ok) {
-               let errorMsg = `Download failed: ${response.statusText} (${response.status})`;
-               if (response.status === 404) errorMsg = "Receipt file not found.";
-               else if (response.status === 401) { errorMsg = "Unauthorized. Please log in again."; navigate('/login'); }
-               else if (response.status === 403) errorMsg = "Forbidden: Cannot download this receipt.";
-               else { try { errorMsg = await response.text() || errorMsg; } catch (err) {err} }
-               throw new Error(errorMsg);
-           }
-           const blob = await response.blob();
-           const objectUrl = window.URL.createObjectURL(blob);
-           const link = document.createElement('a');
-           link.href = objectUrl;
-           link.setAttribute('download', receiptFilename);
-           document.body.appendChild(link);
-           link.click();
-           link.parentNode.removeChild(link);
-           window.URL.revokeObjectURL(objectUrl);
-       } catch (err) {
-           const errorMsg = `Download Error: ${err.message}`;
-           setActionError(errorMsg); alert(errorMsg);
-       } finally {
-           setDownloadingReceipt(null);
-       }
-  }, [navigate]);
-
-
-  // --- Render Logic ---
-  if (isLoading) {
-    return ( <div className="flex justify-center items-center h-60"><p className="text-lg text-gray-600">Loading Fee Details...</p></div> );
-  }
-  if (error) {
-    return ( <div className="container mx-auto p-6 text-center"><div className="p-6 bg-red-100 text-red-700 rounded-lg shadow border border-red-300"><h3 className="text-xl font-semibold mb-3">Error Loading Fee Information</h3><p>{error}</p><button onClick={fetchFees} className="mt-4 mr-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Retry</button></div></div> );
-  }
-
-  return (
-    <div className="container mx-auto p-4 md:p-6 max-w-7xl">
-      <h3 className="text-3xl md:text-4xl font-bold text-center mb-8 text-gray-800 tracking-tight">Fee Payment Portal</h3>
-
-      <div className="bg-white p-4 rounded-lg shadow-md mb-6 border border-gray-200 flex flex-col sm:flex-row gap-4 items-center justify-between flex-wrap">
-          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              <div className="relative w-full sm:w-auto min-w-[180px]"><label htmlFor="filterStatus" className="text-xs font-medium text-gray-500 absolute -top-1.5 left-2 bg-white px-1">Status</label><select id="filterStatus" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="w-full appearance-none px-4 pr-8 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-cyan-400 focus:border-transparent outline-none text-sm bg-white shadow-sm"><option value="all">Show All</option><option value="Paid">Paid</option><option value="Pending">Pending</option></select><span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">▼</span></div>
-               <div className="relative w-full sm:w-auto min-w-[200px]"><label htmlFor="sortOption" className="text-xs font-medium text-gray-500 absolute -top-1.5 left-2 bg-white px-1">Sort By</label><select id="sortOption" value={sortOption} onChange={(e) => setSortOption(e.target.value)} className="w-full appearance-none px-4 pr-8 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-cyan-400 focus:border-transparent outline-none text-sm bg-white shadow-sm"><option value="date-desc">Due Date (Newest)</option><option value="date-asc">Due Date (Oldest)</option><option value="amount-desc">Amount (High-Low)</option><option value="amount-asc">Amount (Low-High)</option><option value="status-asc">Status (A-Z)</option><option value="desc-asc">Description (A-Z)</option></select><span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">▼</span></div>
-          </div>
-           {filterStatus !== 'Paid' && totalPendingAmount > 0 && ( <div className="text-right mt-4 sm:mt-0"><span className="text-sm text-gray-600">Total Pending: </span><span className="font-bold text-red-600 text-lg">{formatCurrency(totalPendingAmount)}</span></div> )}
-           {actionError && <div className="w-full text-center text-red-500 text-sm mt-2">{actionError}</div>}
-      </div>
-
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[950px] border-collapse text-sm">
-            <thead className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-600 uppercase tracking-wider text-xs">
-              <tr>
-                <th className="p-3 text-left font-semibold">Description</th><th className="p-3 text-right font-semibold">Base Amt</th><th className="p-3 text-right font-semibold">Add. Fees</th><th className="p-3 text-right font-semibold">Total Due</th><th className="p-3 text-center font-semibold w-28">Due Date</th><th className="p-3 text-center font-semibold w-24">Status</th><th className="p-3 text-center font-semibold w-28">Paid On</th><th className="p-3 text-center font-semibold w-48">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {displayFees.length > 0 ? (
-                displayFees.map((fee) => {
-                  const isPaid = fee.status === "Paid";
-                  const isPending = fee.status === "Pending";
-                  const additionalFees = (parseFloat(fee.lateFee || 0) + parseFloat(fee.reAdmFee || 0) + parseFloat(fee.penalty || 0));
-                  return (
-                    <tr key={fee.id} className={`hover:bg-gray-50/80 transition-colors duration-150 ${isPaid ? 'bg-green-50/30' : (isPending ? 'bg-red-50/30' : '')}`}>
-                      <td className="p-3 text-left font-medium text-gray-800 whitespace-nowrap">{fee.description}</td>
-                      <td className="p-3 text-right text-gray-700">{formatCurrency(fee.amount)}</td>
-                      <td className="p-3 text-right text-orange-600"> {additionalFees > 0 ? formatCurrency(additionalFees) : '-'} </td>
-                      <td className="p-3 text-right font-semibold text-gray-900">{formatCurrency(fee.totalAmt)}</td>
-                      <td className="p-3 text-center text-gray-600 whitespace-nowrap">{fee.dueDate || '-'}</td>
-                      <td className="p-3 text-center"><span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${ isPaid ? 'bg-green-100 text-green-800 border-green-200' : isPending ? 'bg-red-100 text-red-800 border-red-200' : 'bg-gray-100 text-gray-800 border-gray-200' }`}>{fee.status}</span></td>
-                      <td className="p-3 text-center text-gray-600 whitespace-nowrap">{fee.paidOn || '-'}</td>
-                      <td className="p-3 text-center">
-                        <div className="flex justify-center items-center gap-2">
-                          {/* --- MODIFIED: Pay Now Button --- */}
-                          {isPending ? (
-                            <button
-                                onClick={() => handlePayNow(fee.id, fee.description, fee.totalAmt)}
-                                disabled={processingPayment === fee.id || isLoading}
-                                className={`px-3 py-1 rounded-md text-xs font-medium text-white transition duration-150 shadow-sm flex items-center justify-center min-w-[85px] h-[26px] ${ // Ensure consistent size
-                                    processingPayment === fee.id ? 'bg-gray-400 cursor-wait' : 'bg-blue-500 hover:bg-blue-600 focus:ring-2 focus:ring-blue-300 focus:outline-none'
-                                } disabled:opacity-60 disabled:cursor-not-allowed`}
-                                aria-label={`Pay now for ${fee.description}`}
+            {/* Admin Controls */}
+            {userRole === 'Admin' && (
+                <div className="bg-white p-4 rounded-lg shadow-md mb-6 border border-gray-200">
+                    <div className="flex flex-col md:flex-row gap-4 items-center">
+                        <div className="flex-grow w-full md:w-auto">
+                            <select
+                                value={selectedStudentId}
+                                onChange={(e) => setSelectedStudentId(e.target.value)}
+                                disabled={loadingStudents}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-300 focus:border-transparent outline-none text-sm shadow-sm disabled:opacity-50"
                             >
-                               {/* Show Text Instead of Spinner */}
-                               {processingPayment === fee.id ? 'Paying...' : 'Pay Now'}
-                            </button>
-                          ) : ( <div className="min-w-[85px] h-[26px]"></div> )}
-
-                          {/* --- MODIFIED: Download Receipt Button --- */}
-                          {fee.receiptFilename ? (
-                            <button
-                              onClick={() => handleDownloadReceipt(fee.receiptFilename, fee.description)}
-                              disabled={downloadingReceipt === fee.receiptFilename || isLoading}
-                              className={`px-3 py-1 rounded-md text-xs font-medium text-white transition duration-150 shadow-sm flex items-center justify-center min-w-[85px] h-[26px] ${ // Ensure consistent size
-                                downloadingReceipt === fee.receiptFilename ? 'bg-gray-400 cursor-wait' : 'bg-gray-500 hover:bg-gray-600 focus:ring-2 focus:ring-gray-300 focus:outline-none'
-                              } disabled:opacity-60 disabled:cursor-not-allowed`}
-                              aria-label={`Download receipt for ${fee.description}`}
-                            >
-                               {/* Show Text Instead of Spinner */}
-                               {downloadingReceipt === fee.receiptFilename ? 'Wait...' : 'Receipt'}
-                            </button>
-                          ) : ( <div className="min-w-[85px] h-[26px]"></div> )}
+                                <option value="">Select a Student</option>
+                                {students.map(student => (
+                                    <option key={student.id} value={student.id}>
+                                        {student.name} ({student.email})
+                                    </option>
+                                ))}
+                            </select>
                         </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              ) : ( <tr><td colSpan="8" className="text-center p-10 text-gray-500 italic">{feeDetails.length === 0 ? "No fee details available." : "No fees match filter."}</td></tr> )}
-            </tbody>
-          </table>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={clearFees}
+                                disabled={clearingFees || !selectedStudentId || loadingStudents}
+                                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-150 shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                {clearingFees ? 'Clearing...' : 'Clear Fees'}
+                            </button>
+                            <button
+                                onClick={addSampleFees}
+                                disabled={addingSampleFees || !selectedStudentId || loadingStudents}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-150 shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                {addingSampleFees ? 'Adding Sample Fees...' : 'Add Sample Fees'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Error Message */}
+            {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                    <span className="block sm:inline">{error}</span>
+                    <button 
+                        className="absolute top-0 bottom-0 right-0 px-4 py-3"
+                        onClick={() => setError(null)}
+                    >
+                        <svg className="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <title>Close</title>
+                            <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+                        </svg>
+                    </button>
+                </div>
+            )}
+
+            {/* Only show fees table if student is logged in or admin has selected a student */}
+            {(userRole === 'Student' || (userRole === 'Admin' && selectedStudentId)) && (
+                <>
+                    {/* Controls: Search, Filter, Sort */}
+                    <div className="bg-white p-4 rounded-lg shadow-md mb-6 border border-gray-200 flex flex-col md:flex-row gap-4 items-center">
+                        {/* Search */}
+                        <div className="relative flex-grow w-full md:w-auto">
+                            <input
+                                type="text"
+                                placeholder="Search by Description..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-300 focus:border-transparent outline-none text-sm shadow-sm"
+                            />
+                        </div>
+                        {/* Filter Status */}
+                        <div className="relative w-full md:w-auto">
+                            <select
+                                value={filterStatus}
+                                onChange={(e) => setFilterStatus(e.target.value)}
+                                className="w-full appearance-none px-4 pr-8 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-300 focus:border-transparent outline-none text-sm bg-white shadow-sm"
+                            >
+                                <option value="all">All Status</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Paid">Paid</option>
+                            </select>
+                            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">▼</span>
+                        </div>
+                        {/* Sort Options */}
+                        <div className="relative w-full md:w-auto">
+                            <select
+                                value={sortOption}
+                                onChange={(e) => setSortOption(e.target.value)}
+                                className="w-full appearance-none px-4 pr-8 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-300 focus:border-transparent outline-none text-sm bg-white shadow-sm"
+                            >
+                                <option value="date-desc">Sort: Date (Newest)</option>
+                                <option value="date-asc">Sort: Date (Oldest)</option>
+                                <option value="amount-desc">Sort: Amount (High-Low)</option>
+                                <option value="amount-asc">Sort: Amount (Low-High)</option>
+                            </select>
+                            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">▼</span>
+                        </div>
+                    </div>
+
+                    {/* Fees Display (Table) */}
+                    <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full min-w-[700px] border-collapse text-sm">
+                                <thead className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-600 uppercase tracking-wider">
+                                    <tr>
+                                        <th className="p-3 text-left font-semibold">Description</th>
+                                        <th className="p-3 text-right font-semibold">Amount</th>
+                                        <th className="p-3 text-center font-semibold">Due Date</th>
+                                        <th className="p-3 text-center font-semibold">Status</th>
+                                        <th className="p-3 text-center font-semibold">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200">
+                                    {displayFees.length > 0 ? (
+                                        displayFees.map((fee) => (
+                                            <tr key={fee.id} className="hover:bg-gray-50/80 transition-colors duration-150">
+                                                <td className="p-3 text-left font-medium text-gray-800">{fee.description}</td>
+                                                <td className="p-3 text-right text-gray-700">{formatCurrency(fee.amount)}</td>
+                                                <td className="p-3 text-center text-gray-600">
+                                                    {fee.dueDate ? new Date(fee.dueDate).toLocaleDateString() : '-'}
+                                                </td>
+                                                <td className="p-3 text-center">
+                                                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                                        fee.status === 'Paid' 
+                                                            ? 'bg-green-100 text-green-800 border border-green-200'
+                                                            : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                                                    }`}>
+                                                        {fee.status}
+                                                    </span>
+                                                </td>
+                                                <td className="p-3 text-center">
+                                                    <div className="flex justify-center gap-2">
+                                                        <button
+                                                            onClick={() => handleDownloadDocument(fee.id)}
+                                                            disabled={downloadingDoc === fee.id}
+                                                            className="px-3 py-1 rounded-md text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 transition duration-150 shadow-sm flex items-center justify-center gap-1"
+                                                        >
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                            </svg>
+                                                            <span>{downloadingDoc === fee.id ? 'Downloading...' : 'Document'}</span>
+                                                        </button>
+                                                        {fee.status === 'Pending' && (
+                                                            <button
+                                                                onClick={() => handlePayNow(fee.id)}
+                                                                disabled={processingPayment === fee.id}
+                                                                className="px-3 py-1 rounded-md text-xs font-medium bg-green-600 text-white hover:bg-green-700 transition duration-150 shadow-sm flex items-center justify-center gap-1"
+                                                            >
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                </svg>
+                                                                <span>{processingPayment === fee.id ? 'Processing...' : 'Pay Now'}</span>
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="5" className="text-center p-10 text-gray-500">
+                                                No fees match your current filter/search criteria.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </>
+            )}
+
+            {/* Show message for admin when no student is selected */}
+            {userRole === 'Admin' && !selectedStudentId && !loadingStudents && (
+                <div className="text-center p-8 text-gray-500">
+                    Please select a student to view their fees
+                </div>
+            )}
         </div>
-      </div>
-    </div>
-  );
+    );
 }
 
 export default Feepayment;
